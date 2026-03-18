@@ -1,0 +1,227 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{authblk}
+\usepackage{setspace}
+\usepackage[margin=1.25in]{geometry}
+\usepackage{graphicx}
+\graphicspath{ {./figures/} }
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{lineno}
+\usepackage[export]{adjustbox}
+\usepackage{float}
+\usepackage[labelfont=bf,justification=raggedright,singlelinecheck=false]{caption}
+\linenumbers
+
+\newcommand{\dfir}{Douglas fir}
+
+%%%%%% Bibliography %%%%%%
+\usepackage[style=authoryear,
+citestyle=authoryear,
+sorting=nyt,
+natbib=true]{biblatex}
+\addbibresource{ELrefs.bib}
+
+%%%%%% Title %%%%%%
+\title{Supervised machine learning jointly predicts geographic location and climate of origin from genotypes}
+
+%%%%%% Authors %%%%%%
+\author[1*]{Jordan Rodriguez}
+\author[2]{Richard Cronn}
+\author[1]{Andrew D. Kern}
+
+%%%%%% Affiliations %%%%%%
+\affil[1]{Department of Biology, University of Oregon, Eugene, USA.}
+\affil[2]{Pacific Northwest Research Station, USDA Forest Service, Corvallis, Oregon, USA.}
+\affil[*]{Address correspondence to: jrodrig8@uoregon.edu}
+
+%%%%%% Spacing %%%%%%
+\onehalfspacing
+
+\begin{document}
+
+\maketitle
+
+%%%%%% Abstract %%%%%%
+\begin{abstract}
+
+ 
+\end{abstract}
+
+%%%%%% Main Text %%%%%%
+
+\section{Introduction}
+
+
+%%%%%% START %%%%%%
+\paragraph{}
+Population genetic theory predicts that the distribution of genetic variation within and between populations
+is shaped by demographic history, spatial structure, and environmental pressures, 
+and thus carries information about the processes that generate and maintain it \citep{lewontin_genetic_1974, hartl_principles_1980, ellegren_determinants_2016}. 
+In spatially structured  locally adapted populations, genetic variation reflects information about both the geographic location and the climate of origin of individuals. 
+Geographic structure arises because local mating and limited dispersal generate isolation by distance, causing alleles to be more similar among neighboring individuals than among those farther apart \citep{wright_isolation_1943, slatkin_isolation_1993}. In contrast, environmental selection produces allele frequency clines that parallel ecological gradients, since individuals carrying beneficial variants have higher fitness in particular environments (Endler 1977; \citep{kawecki_conceptual_2004}). At the same time, neutral demographic processes, such as historical range expansions, bottlenecks, or genetic drift, can generate gradients in allele frequency that mimic adaptive signals (\citep{excoffier_genetic_2009}; Novembre and Di Rienzo 2009). Whereas neutral structure is expected to align primarily with geographic distance, adaptive signals instead track specific environmental variables-temperature, moisture, seasonality-that impose fitness differentials on individuals (\citep{hoban_finding_2016, tigano_genomics_2016, coop_using_2010}; Rellstab et al. 2015)
+
+Local adaptation provides the clearest connection between genetic variation and environmental context. It arises when spatially heterogeneous selection outweighs the homogenizing effects of gene flow and drift, causing allele frequencies to covary with environmental gradients \citep{savolainen_ecological_2013, lenormand_gene_2002}. This process not only increases fitness locally, but also sustains genetic diversity across heterogeneous landscapes by maintaining multiple adaptive alleles, thereby ensuring that populations retain the variation needed for selection to act on as environments change (Hereford 2009). Classic models such as Wright’s isolation-by-distance and stepping-stone frameworks \citep{wright_isolation_1943}, Levene’s multiple-niche equilibrium \citep{levene_genetic_1953}, and Endler’s cline theory (Endler 1977) describe how selection, migration, and drift interact to shape predictable spatial patterns of variation. More recent syntheses show that even modest selection can create steep genomic clines under limited dispersal \citep{tigano_genomics_2016, yeaman_genetic_2011}, while strong gene flow can swamp adaptive alleles unless they are tightly linked or of large effect \citep{slatkin_gene_1975}. Together, these insights show that evolutionary forces structure spatial genetic variation in predictable ways, revealing how populations interact with their environments.
+
+Understanding this relationship is especially urgent as anthropogenic climate change rapidly disrupts the match between populations and their environments \citep{lee_ipcc_2023}. As suitable geographic ranges shift, conservation managers face increasing pressure to anticipate where populations will persist under novel conditions. Classic approaches like common-garden experiments, reciprocal transplant gardens, and provenance trials have been indispensable for revealing the dynamics of local adaptation, but they are slow, costly, and often limited in taxonomic or geographic scope \citep{aitken_assisted_2013}. Genomic scans for selection (e.g., GWAS, FST-outlier tests, and genotype–environment association methods) add resolution but struggle with polygenic traits, correlated predictors, and complex demography \citep{beaumont_evaluating_1997, hirschhorn_genome-wide_2005, coop_using_2010, joost_spatial_2007}, Rellstab et al. 2015. These limitations highlight the need for scalable approaches that can capture multilocus signatures of selection while accounting for both geographic structure and environmental gradients.
+
+Recent advances in machine learning (ML) help address this gap. ML methods are well-suited to extract patterns from high-dimensional data, enabling integration of thousands of loci with complex climatic and geographic variables. Battey et al. (2020) showed that deep neural networks can successfully predict geographic origin from genotypes alone by leveraging multilocus patterns that elude classical statistics. Other recent advances more explicitly incorporate ecological context: gradient forest methods link genomic variation to environmental predictors to forecast climate-driven maladaptation [Lotterhos et al., 2021], while multi-environment deep learning architectures in agricultural genomics integrate weather, soil, and other covariates to improve genotype performance prediction across climates [Washburn et al., 2021; Montesinos-López et al., 2022]. Conceptual frameworks by Lotterhos and Whitlock emphasize disentangling adaptive signals from demographic confounding, laying the groundwork for ML-based approaches to local adaptation [Lotterhos and Whitlock, 2015]. Building on these ideas, supervised ML has emerged as a new paradigm in population genetics for capturing nonlinear associations across thousands of loci and environmental variables \citep{schrider_supervised_2018}. By doing so, ML models can detect the genetic signals of local adaptation even when neutral demographic processes or population structure create background patterns that might confound traditional approaches.
+
+Here we introduce Ecolocator, a deep neural network that jointly predicts geographic location and climate-of-origin from genomic data. Trained on georeferenced genotypes paired with historical climate data, the model learns multilocus associations between genetic variation and environmental gradients. When allele frequencies covary with climate variables, the model can infer climate-of-origin directly from genotype. Downstream feature attribution methods like SHAP [CITE] can reveal how each feature (input) contributed to each model prediction, offering a lens into which variants might contribute most strongly to adaptive differentiation across landscapes.
+
+We evaluate Ecolocator across diverse simulation parameterizations to identify the conditions under which it performs best, and then extend the analysis to an empirical dataset of coastal Douglas-fir (Pseudotsuga menziesii var. menziesii). Simulations provide a controlled setting where the evolutionary and environmental parameters are known, allowing us to benchmark prediction accuracy against ground truth before moving to more complex natural systems. To test Ecolocator in a well-characterized empirical context, we focus on coastal Douglas-fir, a subspecies that has dominated western North American forests since the mid-Pleistocene [CITE] and spans sharp climatic gradients from British Columbia to northern California. Despite its high outcrossing rate, populations show strong signatures of local adaptation, with allele frequencies closely tracking climate and soil variation. These features, combined with its long history of ecological and silvicultural study, make Douglas-fir a natural bridge between controlled simulations and applied forestry. For the U.S. Forest Service, understanding seed source–climate relationships is central to reforestation and assisted migration planning. By accurately matching genotypes to suitable environments, Ecolocator complements long-standing traditional knowledge, supporting more resilient and productive forests under climate change. Importantly, Ecolocator can be applied to many other systems, offering a pathway to guide management in less-characterized species—or entirely different taxa—where empirical knowledge of local adaptation is scarce.
+
+By integrating population genetic theory, simulation benchmarking, and empirical application, our study delivers the first open-source approach for simultaneously inferring the geographic origin of a genotype and the climate to which it is best adapted, precisely the information needed as shifting climates outpace traditional experimental approaches. These advancements at the intersection of evolutionary biology and computational science open new avenues for understanding the genetic underpinnings of adaptation, with important implications for conservation and species management.
+
+\section{Ecolocator}
+
+
+Ecolocator is an open-source, command-line tool for predicting the geographic origin and climate of origin of individual genotypes. Unlike traditional statistical methods that rely on fixed assumptions about allele–environment relationships, Ecolocator learns directly from high-dimensional genomic and environmental data. By jointly predicting location and environmental variables, it captures both spatial genetic structure and signals of local adaptation, providing a scalable, biologically informed approach for studying complex evolutionary patterns. The tool is implemented in Python and supports standard genotype formats (VCF, Zarr, tab-delimited matrices), facilitating integration into existing genomic workflows.
+
+\subsection{Preprocessing}
+
+Ecolocator processes genomic data from VCF, Zarr, and tab-delimited matrix formats into vector representations of minor allele counts per individual using the scikit-allel [citation] and NumPy [citation] libraries. Missing genotypes are imputed by drawing alleles from a binomial distribution parameterized by the site’s mean minor allele frequency, an approximation that preserves expected variation while minimizing bias. Ecolocator provides filtering options to exclude sites below a minor allele count threshold, thereby reducing noise from rare variants that contribute little predictive signal. Geographic coordinates are normalized to zero mean and unit variance, while environmental covariates are standardized similarly prior to training.
+
+\subsection{Model architecture}
+
+At its core, Ecolocator employs a deep neural network (multilayer perceptron) trained under a supervised learning framework, using labeled datasets of genotypes paired with their known geographic coordinates and climate variables. The network is optimized with a custom multitask loss function (Eq. 1), combining Euclidean loss for geographic prediction and mean squared error (MSE) for environmental covariates. Training follows a standard validation scheme in which a user-specified fraction of samples (default 0.9) is used for model fitting, while the remaining fraction is held out for validation, enabling convergence monitoring and early stopping to prevent overfitting. By explicitly coupling geographic and climatic inference, the model captures both neutral spatial structure and environment-driven selection, providing a powerful, flexible model for analyzing complex evolutionary patterns.
+
+\begin{figure}[H] % or [h] if you prefer floating
+    \adjustimage{width=1.1\textwidth,center}{figures/EcolocatorARC.pdf}
+    \caption{Ecolocator architecture.}
+    \label{fig:1}
+\end{figure}
+
+
+\begin{equation} \label{eq:1}
+    \text{Loss} = \lambda \left( \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 \right) + (1-\lambda) \left( \sqrt{\sum_{i=1}^{n} (z_i - \hat{z}_i)^2} \right)
+\end{equation}
+
+\subsection{Feature Attribution of inputs on output predictions}
+
+To quantify the contribution of individual genetic features to Ecolocator’s predictions, we applied SHapley Additive exPlanations (SHAP)(CITE), a game-theoretic framework that assigns feature importance scores based on each feature’s marginal contribution to the model output across all possible feature coalitions. Feature attributions were computed separately for each prediction target (latitude, longitude, and environmental covariates), allowing the genetic contributions to be evaluated conditional on the specific response variable of interest. SHAP values were computed on trained models using the genotype matrix as input, allowing attribution of predictive signal to individual loci while accounting for nonlinear interactions among sites. To complement SHAP-based attribution and to assess the robustness of inferred signals, we performed a series of permutation-based sensitivity analyses in which subsets of the genotype matrix were permuted across individuals prior to prediction. These permutations included both random shuffling of increasing proportions of sites genome-wide and targeted permutations focused on predefined genomic windows containing selected variants, as well as sets of loci in linkage disequilibrium (LD) with those windows. LD partners were identified using pairwise correlation thresholds (see Supp. Xx), and permutations were applied either to the selected window alone or jointly with subsets of LD-linked sites stratified by LD strength (See Supp.Xx). This framework allows systematic evaluation of how predictive performance responds to disruption of adaptive loci, correlated hitchhiking regions, and broader neutral genetic structure, providing an interpretable link between model predictions, genetic architecture, and simulated evolutionary processes.
+
+\section{Methods}
+
+\subsection{Simulating local adaptation across heterogeneous landscapes}
+
+To explore under which evolutionary scenarios Ecolocator performs best, we use forward-in-time population genetic simulations in SLiM (CITE). Starting with an initial population, forward-in-time simulation allows for the application of evolutionary forces such as mutation, selection, and genetic drift to shape a population through generations. By varying parameters such as dispersal, mutation rate, recombination rate, genetic architecture, and the standard deviation of the fitness function, the evolutionary trajectory of a given population can be changed in predictable ways. For example, in a simulation where a population experiences weak environmental selection and individuals in that population disperse far distances, it is expected that, due to the homogenizing effects of gene flow across the landscape, there would be little correlation between genetic variation and environmental variation (see Supp. Xx). This simulation setup allows systematic exploration of how ecological and evolutionary parameters, such as dispersal, selection strength, and population density, shape the phenotypic composition of populations throughout the landscape.
+
+\subsection{Fitness and reproduction}
+
+To capture the joint effects of selection, dispersal, and spatial dynamics, we simulate individuals in continuous space on top of an environmental grid. We initialize each simulation by randomly placing individuals across the landscape. The environment is represented as a 8×8 grid, where each cell has an environmental value that defines the local phenotypic optimum, $\theta$. Values are generated with a Hurst exponent of zero (H=0), which removes spatial autocorrelation and creates a patchwork of optima. This setup allows us to isolate the effects of spatial dynamics and dispersal from those of environment-dependent selection.
+
+Individuals experience fitness as a combination of stabilizing selection and density-dependent competition. Stabilizing selection follows a Gaussian function centered on the local optimum (Equation~\ref{eq:stabsel}), where $z$ is the individual’s phenotype, $\theta$ is the optimum in the corresponding grid cell, and $\sigma$ controls the strength of selection:
+
+\begin{equation}
+w(z, \theta) = \exp\!\left[-\frac{(z - \theta)^2}{2\sigma^2}\right]
+\label{eq:stabsel}
+\end{equation}
+
+Total fitness is then determined by multiplying this term with a density-dependent factor $C_i$, where competition is implemented as a Beverton–Holt style density regulation function, where the effective fitness of individual $i$ is reduced according to the local Gaussian-weighted density of neighbors,
+
+\begin{equation}
+W_i = w(z_i, \theta_i) \cdot C_i
+\label{eq:fullfit}
+\end{equation}
+
+\begin{equation}
+C_i = \frac{1}{1 + \rho D_i}
+\label{eq:comp}
+\end{equation}
+
+
+Thus, individuals in crowded regions are less likely to survive and reproduce. After survival, individuals disperse according to a user-specified kernel, which sets the spatial scale of gene flow. Dispersal redistributes individuals across the landscape, and the extent of this movement determines how much subpopulations mix across different environments in the landscape. Following dispersal, individuals mate with nearby partners, such that reproduction depends on both spatial proximity and local density. By varying the dispersal parameter and the standard deviation of the fitness function, we can impact the strength of local adaptation in the simulation (Figure~3).
+
+Together, stabilizing selection, competition, dispersal, and local mating govern the survival and reproduction of individuals, creating a spatially explicit simulation framework that departs from Wright–Fisher assumptions. Local adaptation can then be quantified as the mean difference between each individual’s phenotype and its local optimum, such that smaller values correspond to stronger local adaptation (Equation~\ref{eq:localadapt}).
+
+\begin{equation}
+\mathrm{Local\;Adaptation} \;=\; 
+\frac{1}{N} \sum_{i=1}^{N} \left| P_i - O_i \right|
+\label{eq:localadapt}
+\end{equation}
+
+\subsection{Genomic architecture and tree sequence recording}
+The genetics underlying adaptation are simulated with a 1 Mb genomic element carried by each individual. Mutations at quantitative trait loci (QTL) arise within this element, and their additive effects determine an individual’s phenotype. To explore whether the arrangement of adaptive loci influences the detectability of local adaptation, genomic architecture is varied by altering the distribution of QTLs: mutations may occur within a single 200 kb window in the center of the element, within three smaller 100 kb windows, or within five 100 kb windows distributed across the element. (Figure 3., panel c)
+
+We only simulate non-neutral mutations within SLiM. Genomic information is stored in tree sequences, which record the ancestry and mutational history of all individuals. Neutral mutations are then overlaid onto these tree sequences using msprime [CITE], allowing a clear separation between adaptive genetic variation and neutral background variation. This compact representation provides the full genomic context needed to explore the link between genetic variation and environmental adaptation. 
+
+\subsection{Varying dispersal, selection, and genetic architecture parameters}
+To evaluate the robustness of Ecolocator across diverse evolutionary contexts, we varied three parameters-- dispersal, the strength of stabilizing selection, and the genomic architecture of adaptive loci. These axes of variation were chosen because they represent core processes shaping the detectability of local adaptation: gene flow homogenizes allele frequencies across space, selection drives divergence between environments, and genomic architecture determines how adaptive alleles are distributed across the genome. By exploring combinations of these parameters, we can assess under which evolutionary regimes spatial–environmental signals of adaptation are most readily captured. 
+
+Dispersal distance (\(\sigma_D\)) sets the spatial scale of gene flow in the simulation. Smaller values correspond to restricted movement, leading to stronger genetic differentiation among neighboring regions, whereas larger values represent more mixing across the landscape. We tested three dispersal regimes (\(\sigma_D = 0.1, 0.3, 0.5\)), which span cases where individuals remain close to their birthplace versus scenarios where they disperse broadly and homogenize allele frequencies.
+
+The strength of stabilizing selection is governed by the standard deviation parameter (\(\sigma_K\)) in the Gaussian fitness function. Small values of \(\sigma_K\) impose strong penalties on phenotypes deviating from the local optimum, leading to sharper differentiation between environments, whereas large values correspond to weaker selection that tolerates a broader range of phenotypes. We evaluated three values (\(\sigma_K = 0.3, 0.5, 0.7\)) to capture strong, intermediate, and weak selection regimes.
+
+To explore whether the genomic distribution of adaptive loci influences the detectability of local adaptation, we varied the arrangement of quantitative trait loci (QTLs) along the 1 Mb chromosome. In one scenario, all QTLs were clustered within a single 200 kb window at the center of the chromosome. In the second, QTLs were distributed across three smaller windows. In the third, they were spread across five windows distributed evenly along the chromosome. These treatments allowed us to test whether adaptive signals are easier to detect when concentrated in specific genomic regions versus dispersed more broadly.
+
+Together, these parameter combinations generate a set of evolutionary scenarios that differ in the balance between gene flow, selection, and genomic distribution of adaptive alleles. In each parameter variation test case, we held the other parameters at an intermediate value (i.e., when testing dispersal parameters, we held \(\sigma_K\) at 0.5).  While the units in SLiM are arbitrary, they can be interpreted qualitatively: smaller dispersal values correspond to localized neighborhoods, smaller (\(\sigma_K\)) values correspond to stronger local adaptation pressures, and greater clustering of QTLs corresponds to tighter genomic control of adaptive traits. By exploring this parameter space, we created simulations that range from highly structured, strongly adapted populations to less structured, weakly adapted populations. This variation provides the basis for evaluating when and where Ecolocator most effectively detects spatial–environmental signals of adaptation.
+
+\section{Results}
+
+\subsection{Ecolocator prediction accuracy scales proportionally with strength of local adaptation}
+
+To explore the evolutionary scenarios under which Ecolocator is most suitable, we evaluated its prediction accuracy across a range of simulation parameterizations (Figure 2). For each parameter combination, we ran 100 simulation replicates and summarized the distribution of local adaptation scores calculated from each replicate within each regime (see Supp. Xx). Under restricted dispersal (d = 0.1) and a smaller standard deviation of the fitness function (stronger selection, \(\sigma_K\)=0.5), simulated populations became strongly locally adapted to their environments (LA < 0.1) after 10,000 generations. As dispersal increased, Ecolocator’s ability to predict both geographic location and environmental covariates declined. Environmental covariate prediction was weakened under higher dispersal (d = 0.5, R² = XX), consistent with increased gene flow eroding local adaptation and thereby reducing the correspondence between environmental and genetic variation. Location prediction similarly declined with increasing dispersal, reflecting reduced isolation by distance and weaker population structure in high-dispersal populations.
+
+Decreasing selection strength, implemented through increasing the standard deviation of the fitness function, also reduced Ecolocator’s accuracy for environmental covariate prediction. Under weaker selection, intermediate genotypes are penalized less strongly, resulting in reduced local adaptation and a diminished genetic signal of environmental variation. In contrast to dispersal, varying selection strength did not significantly (add stat here showing?) affect location prediction, which is expected given that dispersal was held constant (d = 0.1) across all selection regimes, maintaining a consistent spatial population structure across these simulations. 
+
+Varying genetic architecture produced only a slight (negligible—maybe include pval here of non-signif?) difference in local adaptation ($\vec{\Delta}$LA between GA1 and GA3 = 0.0008), despite the higher number of QTL mutations arising under genetic architecture 3 relative to genetic architecture 1 (number here). Biologically, varying genetic architecture allows us to explore differences in how adaptive effects are distributed across loci, ranging from architectures dominated by fewer, larger-effect QTL to those involving many smaller-effect and potentially redundant loci contributing to similar phenotypic outcomes. Across architectures, Ecolocator’s location prediction accuracy remained unchanged, while environmental covariate prediction accuracy was largely similar, although predictions under genetic architecture 1 exhibited more extreme outliers. Together, these results suggest that Ecolocator’s performance is robust to differences in genetic architecture within the range explored here, while leaving open questions about how effect size distributions and locus redundancy shape model sensitivity under more complex or realistic adaptive scenarios, which we return to in the Discussion.
+
+
+\begin{figure}[H] % or [h] if you prefer floating
+    \adjustimage{width=1.1\textwidth,center}{figures/simparamsFIG2.pdf}
+    \caption{Effects of parameter variation on Ecolocator performance.}
+    \label{fig:2}
+\end{figure}
+
+ - different sample sizes, different SNPs fig in supplemental, but reference it here. 
+
+- El predicts better when we have a less biased sampling regime (more representative of population)(supplemental)
+
+
+
+\subsection{Feature attribution methods reveal adaptive loci in silico}
+
+-  Linkage Disequilibrium impacts our ability to identify adaptive loci (Maybe discussion, talk about recombination rate changes impact of EL preds, reference supplemental)
+
+
+\subsection{Comparison of Ecolocator to other GEA methods}
+
+\begin{figure}[H] % or [h] if you prefer floating
+    \adjustimage{width=1.1\textwidth,center}{figures/GEAfig.pdf}
+    \caption{AUC-PR Curve Comparison between SHAP, WZA, and Top-candidate methods.}
+    \label{fig:3}
+\end{figure}
+
+
+
+\subsection{Case study: Predicting suitable environments for coastal Douglas Fir using Ecolocator}
+
+- what we know about Dfir system (range, importance)
+- data we have for Dfir 
+- steps to how we ran stuff, referencing code, etc. 
+
+Simulations provide a controlled setting to benchmark Ecolocator, but the ultimate goal is to evaluate its performance in natural systems where demography, gene flow, and selection interact in complex ways. To this end, we applied Ecolocator to coastal Douglas-fir (*Pseudotsuga menziesii* var. *menziesii*), a keystone species spanning steep climatic gradients along western North America. This case study links theoretical expectations to a practical forestry context, where accurate genotype–environment matching is critical for reforestation and assisted migration planning.
+
+Our empirical dataset consisted of 348 (WILL CHANGE) coastal Douglas-fir individuals genotyped by the U.S. Forest Service using Affymetrix SNP arrays. Because Douglas-fir is monoecious, seeds provided both the tissue for genotyping and a representation of the maternal trees from which they were collected. The array yielded approximately 18,000 SNPs (WILL CHANGE), though their genomic positions are unknown due to the large size ($\sim$18 Gb) and incomplete assembly of the Douglas-fir genome. The sampled individuals were designated as ``plus'' trees, meaning they were identified in provenance trials or field observations as being particularly well-adapted to their local environments. To capture the climatic conditions under which these trees likely experienced the strongest selection during early development, we paired each genotype with 1970--2000 (WILL CHANGE) baseline climate normals from ClimateNA. From these records, we focused on three variables previously shown to be key determinants of Douglas-fir growth and local adaptation: mean cold month temperature, mean summer precipitation, and summer heat-moisture index [CITE].
+
+Prior to model training, we applied standard preprocessing to ensure comparability across genomic and environmental inputs, as detailed in the preprocessing section. These steps minimize technical artifacts and place all predictors on compatible scales for joint prediction, consistent with best practices in genomic prediction analyses. We then trained Ecolocator on this dataset in a leave-one-out cross-validation framework, enabling direct comparison between predicted values and the true climate and location attributes of each withheld individual.
+
+
+
+\section{Discussion}
+
+1. Ecolocator predictions tell us about spatial structure and local adaptation of a population (Ecolocator accurately predicts geography and climate of Origin of Douglas fir)
+
+2. Limitations and stregths of its use 
+
+3. What this tool/ these findings means for Douglas fir / Forestry context
+
+4. Feature attribution discussion
+
+5. Future applications/directions
+
+
+\printbibliography
+
+\end{document}
