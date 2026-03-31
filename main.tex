@@ -219,7 +219,7 @@ the model can infer climate of origin directly from genotype.
 By coupling spatial and environmental inference,
 Ecolocator can leverage signals of both isolation by distance
 and local adaptation.
-Downstream feature attribution methods such as SHAP [CITE]
+Downstream feature attribution methods such as SHAP \citep{lundberg_shap_2017}
 reveal how each input feature contributed to a given prediction,
 identifying which variants contribute most strongly
 to adaptive differentiation across landscapes.
@@ -291,45 +291,45 @@ facilitating integration into existing genomic workflows.
 
 \subsection{Preprocessing}
 
-Ecolocator processes genomic data from VCF, Zarr,
+Ecolocator converts genomic data from VCF, Zarr,
 and tab-delimited matrix formats
-into vector representations of minor allele counts per individual
-using the scikit-allel [citation] and NumPy [citation] libraries.
+into vectors of minor allele counts per individual
+using the scikit-allel [CITE] and NumPy [CITE] libraries.
 Missing genotypes are imputed by drawing alleles
 from a binomial distribution parameterized
 by the site's mean minor allele frequency,
 an approximation that preserves expected variation
 while minimizing bias.
-Ecolocator provides filtering options to exclude sites
-below a minor allele count threshold,
-thereby reducing noise from rare variants
+Sites can be filtered by a minor allele count threshold
+to reduce noise from rare variants
 that contribute little predictive signal.
 Geographic coordinates are normalized to zero mean and unit variance,
-while environmental covariates are standardized similarly
+and environmental covariates are standardized similarly
 prior to training.
 
 \subsection{Model architecture}
 
-At its core, Ecolocator employs a deep neural network
-(multilayer perceptron) trained under a supervised learning framework,
-using labeled datasets of genotypes paired
+Ecolocator employs a multilayer perceptron
+trained under a supervised learning framework
+on labeled datasets of genotypes paired
 with their known geographic coordinates and climate variables.
-The network is optimized with a custom multitask loss function (Eq. 1),
+The network is optimized with a custom multitask loss function
+(Equation~\ref{eq:1}),
 combining Euclidean loss for geographic prediction
 and mean squared error (MSE) for environmental covariates.
-Training follows a standard validation scheme
+%ADK-- Check: the text says Euclidean for geography and MSE for environment, but in Eq 1 the first (lambda) term is MSE and the second (1-lambda) term is the square root (Euclidean). One of these is swapped.
+Training uses a standard validation scheme
 in which a user-specified fraction of samples (default 0.9)
 is used for model fitting,
 while the remaining fraction is held out for validation,
 enabling convergence monitoring and early stopping
 to prevent overfitting.
+%ADK-- Missing: describe the output structure -- separate heads for geography (lat/lon) vs environment (N covariates)? Single output vector? Needed to understand the multitask setup.
 By explicitly coupling geographic and climatic inference,
 the model captures both neutral spatial structure
-and environment-driven selection,
-providing a powerful, flexible model
-for analyzing complex evolutionary patterns.
+and environment-driven selection.
 
-\begin{figure}[H] % or [h] if you prefer floating
+\begin{figure}[H]
     \adjustimage{width=1.1\textwidth,center}{figures/EcolocatorARC.pdf}
     \caption{Ecolocator architecture.}
     \label{fig:1}
@@ -340,41 +340,42 @@ for analyzing complex evolutionary patterns.
     \text{Loss} = \lambda \left( \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 \right) + (1-\lambda) \left( \sqrt{\sum_{i=1}^{n} (z_i - \hat{z}_i)^2} \right)
 \end{equation}
 
-\subsection{Feature Attribution of inputs on output predictions}
+\subsection{Feature attribution}
 
 To quantify the contribution of individual genetic features
 to Ecolocator's predictions,
-we applied SHapley Additive exPlanations (SHAP)(CITE),
-a game-theoretic framework that assigns feature importance scores
+we applied SHapley Additive exPlanations
+\citep[SHAP;][]{lundberg_shap_2017},
+a game-theoretic framework that assigns importance scores
 based on each feature's marginal contribution to the model output
 across all possible feature coalitions.
-Feature attributions were computed separately for each prediction target
+Attributions were computed separately for each prediction target
 (latitude, longitude, and environmental covariates),
 allowing the genetic contributions to be evaluated
-conditional on the specific response variable of interest.
-SHAP values were computed on trained models
+conditional on the response variable of interest.
+SHAP values were calculated on trained models
 using the genotype matrix as input,
-allowing attribution of predictive signal to individual loci
+attributing predictive signal to individual loci
 while accounting for nonlinear interactions among sites.
 To complement SHAP-based attribution
-and to assess the robustness of inferred signals,
+and assess the robustness of inferred signals,
 we performed a series of permutation-based sensitivity analyses
 in which subsets of the genotype matrix
-were permuted across individuals prior to prediction.
-These permutations included both random shuffling
-of increasing proportions of sites genome-wide
-and targeted permutations focused on predefined genomic windows
+were shuffled across individuals prior to prediction.
+These permutations included random shuffling
+of increasing proportions of sites genome-wide,
+targeted permutations of predefined genomic windows
 containing selected variants,
-as well as sets of loci in linkage disequilibrium (LD)
+and permutations of loci in linkage disequilibrium (LD)
 with those windows.
 LD partners were identified using pairwise correlation thresholds
-(see Supp. Xx),
+(see Supp.\ Xx),
 and permutations were applied either to the selected window alone
 or jointly with subsets of LD-linked sites
-stratified by LD strength (See Supp.Xx).
-This framework allows systematic evaluation
-of how predictive performance responds to disruption of adaptive loci,
-correlated hitchhiking regions,
+stratified by LD strength (see Supp.\ Xx).
+This framework enables systematic evaluation
+of how predictive performance responds to disruption
+of adaptive loci, correlated hitchhiking regions,
 and broader neutral genetic structure,
 providing an interpretable link between model predictions,
 genetic architecture, and simulated evolutionary processes.
