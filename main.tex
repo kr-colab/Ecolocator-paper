@@ -55,55 +55,60 @@ and climate of origin from genotypes}
 \section{Introduction}
 
 
-%%%%%% START %%%%%%
-\paragraph{}
-Population genetic theory predicts that the distribution of genetic variation
-within and between populations is shaped by demographic history,
-spatial structure, and environmental pressures,
-and thus carries information about the processes that generate and maintain it
+Population genetic theory predicts that the distribution
+of genetic variation within and between populations
+is shaped by demographic history, spatial structure,
+and environmental pressures,
+and thus carries information about the processes
+that generate and maintain it
 \citep{lewontin_genetic_1974, hartl_principles_1980, ellegren_determinants_2016}.
-In spatially structured locally adapted populations,
-genetic variation reflects information about both the geographic location
-and the climate of origin of individuals.
+In spatially structured, locally adapted populations,
+genetic variation encodes information about both geographic location
+and climate of origin.
 Geographic structure arises because local mating and limited dispersal
 generate isolation by distance,
 causing alleles to be more similar among neighboring individuals
-than among those farther apart \citep{wright_isolation_1943, slatkin_isolation_1993}.
-In contrast, environmental selection produces allele frequency clines
-that parallel ecological gradients,
-since individuals carrying beneficial variants have higher fitness
-in particular environments (Endler 1977; \citep{kawecki_conceptual_2004}).
-At the same time, neutral demographic processes,
-such as historical range expansions, bottlenecks, or genetic drift,
-can generate gradients in allele frequency that mimic adaptive signals
-(\citep{excoffier_genetic_2009}; Novembre and Di Rienzo 2009).
-Whereas neutral structure is expected to align primarily with geographic distance,
-adaptive signals instead track specific environmental variables---temperature,
-moisture, seasonality---that impose fitness differentials on individuals
-(\citep{hoban_finding_2016, tigano_genomics_2016, coop_using_2010}; Rellstab et al. 2015)
+than among those farther apart
+\citep{wright_isolation_1943, slatkin_isolation_1993}.
+Environmental selection, in contrast,
+produces allele frequency clines that parallel ecological gradients,
+as individuals carrying locally beneficial variants
+enjoy higher fitness in particular environments
+\citep[Endler 1977;][]{kawecki_conceptual_2004}.
+At the same time, neutral demographic processes---historical
+range expansions, bottlenecks, and genetic drift---can
+generate allele frequency gradients that mimic adaptive signals
+\citep[]{excoffier_genetic_2009}; Novembre and Di Rienzo 2009).
+Whereas neutral structure aligns primarily with geographic distance,
+adaptive signals track specific environmental
+variables---temperature, moisture, seasonality---that
+impose fitness differentials on individuals
+\citep[Rellstab et al. 2015;][]{hoban_finding_2016, tigano_genomics_2016, coop_using_2010}.
 
-Local adaptation provides the clearest connection
+Local adaptation provides the clearest link
 between genetic variation and environmental context.
 It arises when spatially heterogeneous selection outweighs
 the homogenizing effects of gene flow and drift,
 causing allele frequencies to covary with environmental gradients
 \citep{savolainen_ecological_2013, lenormand_gene_2002}.
-This process not only increases fitness locally,
+This process not only increases fitness locally
 but also sustains genetic diversity across heterogeneous landscapes
 by maintaining multiple adaptive alleles,
-thereby ensuring that populations retain the variation needed
-for selection to act on as environments change (Hereford 2009).
-Classic models such as Wright's isolation-by-distance
+ensuring that populations retain the variation
+on which selection can act as environments change (Hereford 2009).
+Classic models---Wright's isolation-by-distance
 and stepping-stone frameworks \citep{wright_isolation_1943},
 Levene's multiple-niche equilibrium \citep{levene_genetic_1953},
-and Endler's cline theory (Endler 1977) describe how selection, migration,
-and drift interact to shape predictable spatial patterns of variation.
+and Endler's cline theory (Endler 1977)---describe
+how selection, migration, and drift interact
+to shape predictable spatial patterns of variation.
 More recent syntheses show that even modest selection
 can create steep genomic clines under limited dispersal
 \citep{tigano_genomics_2016, yeaman_genetic_2011},
 while strong gene flow can swamp adaptive alleles
-unless they are tightly linked or of large effect \citep{slatkin_gene_1975}.
-Together, these insights show that evolutionary forces
+unless they are tightly linked or of large effect
+\citep{slatkin_gene_1975}.
+Together, these insights demonstrate that evolutionary forces
 structure spatial genetic variation in predictable ways,
 revealing how populations interact with their environments.
 
@@ -113,77 +118,86 @@ between populations and their environments \citep{lee_ipcc_2023}.
 As suitable geographic ranges shift,
 conservation managers face increasing pressure to anticipate
 where populations will persist under novel conditions.
-Classic approaches like common-garden experiments,
-reciprocal transplant gardens, and provenance trials
-have been indispensable for revealing the dynamics of local adaptation,
+Classic approaches---common-garden experiments,
+reciprocal transplant trials, and provenance tests---have
+been indispensable for characterizing local adaptation,
 but they are slow, costly,
-and often limited in taxonomic or geographic scope \citep{aitken_assisted_2013}.
+and often limited in taxonomic or geographic scope
+\citep{aitken_assisted_2013}.
 Genomic scans for selection
-(e.g., GWAS, FST-outlier tests, and genotype--environment association methods)
-add resolution but struggle with polygenic traits, correlated predictors,
-and complex demography
-\citep{beaumont_evaluating_1997, hirschhorn_genome-wide_2005, coop_using_2010, joost_spatial_2007},
-Rellstab et al. 2015.
+(e.g., GWAS, $F_{ST}$-outlier tests,
+and genotype--environment association methods)
+add resolution but struggle with polygenic traits,
+correlated predictors, and complex demography
+\citep{beaumont_evaluating_1997, hirschhorn_genome-wide_2005,
+coop_using_2010, joost_spatial_2007}; Rellstab et al. 2015.
 These limitations highlight the need for scalable approaches
-that can capture multilocus signatures of selection
-while accounting for both geographic structure and environmental gradients.
+that capture multilocus signatures of selection
+while accounting for both geographic structure
+and environmental gradients.
 
 Recent advances in machine learning (ML) help address this gap.
-ML methods are well-suited to extract patterns from high-dimensional data,
+ML methods excel at extracting patterns from high-dimensional data,
 enabling integration of thousands of loci
 with complex climatic and geographic variables.
 Battey et al. (2020) showed that deep neural networks
-can successfully predict geographic origin from genotypes alone
+can predict geographic origin from genotypes alone
 by leveraging multilocus patterns that elude classical statistics.
-Other recent advances more explicitly incorporate ecological context:
-gradient forest methods link genomic variation to environmental predictors
-to forecast climate-driven maladaptation [Lotterhos et al., 2021],
-while multi-environment deep learning architectures in agricultural genomics
-integrate weather, soil, and other covariates
-to improve genotype performance prediction across climates
+Other recent work incorporates ecological context more explicitly:
+gradient forest methods link genomic variation
+to environmental predictors to forecast climate-driven maladaptation
+[Lotterhos et al., 2021],
+while multi-environment deep learning architectures
+in agricultural genomics integrate weather, soil,
+and other covariates to improve genotype performance prediction
+across climates
 [Washburn et al., 2021; Montesinos-L\'{o}pez et al., 2022].
 Conceptual frameworks by Lotterhos and Whitlock emphasize
-disentangling adaptive signals from demographic confounding,
-laying the groundwork for ML-based approaches to local adaptation
-[Lotterhos and Whitlock, 2015].
+disentangling adaptive signals from demographic confounders,
+laying the groundwork for ML-based approaches
+to local adaptation [Lotterhos and Whitlock, 2015].
 Building on these ideas,
-supervised ML has emerged as a new paradigm in population genetics
-for capturing nonlinear associations across thousands of loci
-and environmental variables \citep{schrider_supervised_2018}.
-By doing so, ML models can detect the genetic signals of local adaptation
+supervised ML has emerged as a powerful paradigm
+in population genetics for capturing nonlinear associations
+across thousands of loci and environmental variables
+\citep{schrider_supervised_2018}.
+ML models can detect genetic signals of local adaptation
 even when neutral demographic processes or population structure
-create background patterns that might confound traditional approaches.
+create background patterns
+that confound traditional approaches.
 
 Here we introduce Ecolocator,
 a deep neural network that jointly predicts geographic location
-and climate-of-origin from genomic data.
-Trained on georeferenced genotypes paired with historical climate data,
+and climate of origin from genomic data.
+Trained on georeferenced genotypes paired
+with historical climate data,
 the model learns multilocus associations
 between genetic variation and environmental gradients.
 When allele frequencies covary with climate variables,
-the model can infer climate-of-origin directly from genotype.
-Downstream feature attribution methods like SHAP [CITE]
-can reveal how each feature (input) contributed to each model prediction,
-offering a lens into which variants might contribute most strongly
+the model can infer climate of origin directly from genotype.
+Downstream feature attribution methods such as SHAP [CITE]
+reveal how each input feature contributed to a given prediction,
+identifying which variants contribute most strongly
 to adaptive differentiation across landscapes.
 
-We evaluate Ecolocator across diverse simulation parameterizations
+We evaluate Ecolocator across a range of simulation parameterizations
 to identify the conditions under which it performs best,
-and then extend the analysis to an empirical dataset of coastal Douglas-fir
-(Pseudotsuga menziesii var. menziesii).
+then extend the analysis to an empirical dataset of coastal Douglas-fir
+(\textit{Pseudotsuga menziesii} var.\ \textit{menziesii}).
 Simulations provide a controlled setting
-where the evolutionary and environmental parameters are known,
+in which evolutionary and environmental parameters are known,
 allowing us to benchmark prediction accuracy against ground truth
 before moving to more complex natural systems.
-To test Ecolocator in a well-characterized empirical context,
-we focus on coastal Douglas-fir,
+As an empirical test case we focus on coastal Douglas-fir,
 a subspecies that has dominated western North American forests
 since the mid-Pleistocene [CITE]
-and spans sharp climatic gradients from British Columbia to northern California.
-Despite its high outcrossing rate,
-populations show strong signatures of local adaptation,
-with allele frequencies closely tracking climate and soil variation.
-These features, combined with its long history
+and spans sharp climatic gradients
+from British Columbia to northern California.
+Despite high outcrossing rates,
+Douglas-fir populations show strong signatures of local adaptation,
+with allele frequencies closely tracking climate
+and soil variation.
+These features, combined with a long history
 of ecological and silvicultural study,
 make Douglas-fir a natural bridge
 between controlled simulations and applied forestry.
@@ -192,23 +206,24 @@ understanding seed source--climate relationships
 is central to reforestation and assisted migration planning.
 By accurately matching genotypes to suitable environments,
 Ecolocator complements long-standing traditional knowledge,
-supporting more resilient and productive forests under climate change.
-Importantly, Ecolocator can be applied to many other systems,
-offering a pathway to guide management in less-characterized species---or
-entirely different taxa---where empirical knowledge
-of local adaptation is scarce.
+supporting more resilient and productive forests
+under climate change.
+Importantly, Ecolocator is not limited to this system;
+it offers a pathway to guide management
+in less-characterized species---or entirely different taxa---where
+empirical knowledge of local adaptation is scarce.
 
 By integrating population genetic theory,
 simulation benchmarking, and empirical application,
-our study delivers the first open-source approach
+our study presents the first open-source approach
 for simultaneously inferring the geographic origin of a genotype
-and the climate to which it is best adapted,
-precisely the information needed as shifting climates
+and the climate to which it is adapted---precisely
+the information needed as shifting climates
 outpace traditional experimental approaches.
-These advancements at the intersection of evolutionary biology
+These advances at the intersection of evolutionary biology
 and computational science open new avenues
-for understanding the genetic underpinnings of adaptation,
-with important implications for conservation and species management.
+for understanding the genetic basis of adaptation,
+with broad implications for conservation and species management.
 
 \section{Ecolocator}
 
