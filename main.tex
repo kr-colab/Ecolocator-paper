@@ -124,57 +124,101 @@ been indispensable for characterizing local adaptation,
 but they are slow, costly,
 and often limited in taxonomic or geographic scope
 \citep{aitken_assisted_2013}.
-Genomic scans for selection
-(e.g., GWAS, $F_{ST}$-outlier tests,
-and genotype--environment association methods)
-add resolution but struggle with polygenic traits,
-correlated predictors, and complex demography
-\citep{beaumont_evaluating_1997, hirschhorn_genome-wide_2005,
-coop_using_2010, joost_spatial_2007}; Rellstab et al. 2015.
-These limitations highlight the need for scalable approaches
-that capture multilocus signatures of selection
-while accounting for both geographic structure
-and environmental gradients.
+Genomic tools offer a faster, more scalable alternative,
+and the emerging field of landscape genomics
+seeks to link spatial and environmental variation
+with patterns of genetic diversity
+\citep{manel_landscape_2003, rellstab_practical_2015}.
+For forest species in particular,
+genomic approaches are increasingly informing
+seed transfer and assisted gene flow decisions
+\citep{aitken_bemmels_2016}.
 
-Recent advances in machine learning (ML) help address this gap.
-ML methods excel at extracting patterns from high-dimensional data,
-enabling integration of thousands of loci
-with complex climatic and geographic variables.
-Battey et al. (2020) showed that deep neural networks
-can predict geographic origin from genotypes alone
-by leveraging multilocus patterns that elude classical statistics.
-Other recent work incorporates ecological context more explicitly:
+Genotype--environment association (GEA) methods
+have become central to this effort.
+These approaches identify putatively adaptive loci
+by testing for statistical associations
+between allele frequencies and environmental variables
+\citep{rellstab_practical_2015}.
+Univariate methods such as Bayenv2
+\citep{guenther_bayenv2_2013},
+latent factor mixed models
+\citep[LFMM;][]{frichot_lfmm_2013},
+and BayPass \citep{gautier_baypass_2015}
+test loci one at a time against environmental predictors,
+typically while controlling for population structure
+through covariance matrices or latent factors.
+These methods have been widely applied,
+but they are limited in their ability to capture
+polygenic adaptation involving many loci of small effect,
+and they can be confounded by neutral demographic processes
+that generate allele frequency gradients
+correlated with environmental variation
+\citep{lotterhos_whitlock_2015}.
+Multivariate approaches address some of these limitations
+by analyzing many loci and environmental predictors simultaneously.
+Redundancy analysis (RDA) has proven effective
+at detecting multilocus adaptive signatures
+\citep{forester_comparing_2018, capblancq_rda_2021},
+and gradient forest methods model
+nonlinear allele--environment relationships
+across the genome \citep{fitzpatrick_gradient_2015}.
+More recently, the Weighted-Z Analysis (WZA) introduced
+a window-based framework for aggregating
+single-locus GEA statistics
+into region-level summaries of adaptive signal
+\citep{booker_wza_2024}.
+Despite this progress,
+most GEA methods share key limitations:
+they test for associations with environment
+without jointly modeling geographic structure,
+and they do not produce direct predictions
+of an individual's environment of origin from its genotype.
+
+Machine learning (ML) offers a complementary approach
+that can overcome several of these constraints.
+ML methods excel at extracting patterns
+from high-dimensional data,
+naturally handling nonlinear interactions among loci
+and correlated environmental predictors
+\citep{schrider_supervised_2018}.
+\citet{battey_predicting_2020} demonstrated
+that deep neural networks can predict
+the geographic origin of an individual from its genotype alone,
+using a tool called Locator.
+By learning from multilocus patterns of isolation by distance,
+Locator achieves high spatial accuracy,
+but it does not incorporate environmental covariates
+and therefore cannot distinguish adaptive signals
+from neutral spatial structure.
+Other recent work incorporates ecological context
+more explicitly:
 gradient forest methods link genomic variation
-to environmental predictors to forecast climate-driven maladaptation
-[Lotterhos et al., 2021],
+to environmental predictors to forecast
+climate-driven maladaptation [Lotterhos et al., 2021],
 while multi-environment deep learning architectures
 in agricultural genomics integrate weather, soil,
 and other covariates to improve genotype performance prediction
 across climates
 [Washburn et al., 2021; Montesinos-L\'{o}pez et al., 2022].
-Conceptual frameworks by Lotterhos and Whitlock emphasize
-disentangling adaptive signals from demographic confounders,
-laying the groundwork for ML-based approaches
-to local adaptation [Lotterhos and Whitlock, 2015].
-Building on these ideas,
-supervised ML has emerged as a powerful paradigm
-in population genetics for capturing nonlinear associations
-across thousands of loci and environmental variables
-\citep{schrider_supervised_2018}.
-ML models can detect genetic signals of local adaptation
-even when neutral demographic processes or population structure
-create background patterns
-that confound traditional approaches.
+What remains missing is an approach that jointly models
+geographic and environmental prediction from genotypes,
+capturing both neutral spatial structure
+and adaptive environmental associations in a single framework.
 
 Here we introduce Ecolocator,
-a deep neural network that jointly predicts geographic location
-and climate of origin from genomic data.
+a deep neural network that extends the geographic prediction
+framework of Locator by jointly predicting
+geographic location and climate of origin from genomic data.
 Trained on georeferenced genotypes paired
 with historical climate data,
 the model learns multilocus associations
 between genetic variation and environmental gradients.
 When allele frequencies covary with climate variables,
 the model can infer climate of origin directly from genotype.
+By coupling spatial and environmental inference,
+Ecolocator can leverage signals of both isolation by distance
+and local adaptation.
 Downstream feature attribution methods such as SHAP [CITE]
 reveal how each input feature contributed to a given prediction,
 identifying which variants contribute most strongly
