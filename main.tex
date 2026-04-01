@@ -672,15 +672,32 @@ which we return to in the Discussion.
     \label{fig:2}
 \end{figure}
 
- - different sample sizes, different SNPs fig in supplemental, but reference it here.
+ - SUPP: different sample sizes, different SNPs fig in supplemental, but reference it here. 
 
-- El predicts better when we have a less biased sampling regime (more representative of population)(supplemental)
 
 
 
 \subsection{Feature attribution methods reveal adaptive loci in silico}
 
--  Linkage Disequilibrium impacts our ability to identify adaptive loci (Maybe discussion, talk about recombination rate changes impact of EL preds, reference supplemental)
+To evaluate whether feature attribution identifies adaptive loci, we summarized SHAP values across all simulation replicates under strong local adaptation ($d = 0.1$, $\sigma_K = 0.5$) and compared attribution scores between non-neutral variants and neutral variants (including sites in linkage disequilibrium). Across all genetic architectures, non-neutral variants consistently received higher SHAP values than neutral sites, indicating that Ecolocator preferentially attributes predictive signal to loci under selection (Figure X). This separation was evident both in individual simulation examples and in distributions aggregated across all replicates.
+
+Under genetic architecture 1, non-neutral variants exhibited higher mean attribution values ($\mu = 0.390$) relative to neutral and LD sites combined ($\mu = 0.292$), with this difference highly significant ($p = 2.21 \times 10^{-4}$). 
+A similar pattern was observed under genetic architecture 2, where non-neutral variants again showed elevated SHAP values ($\mu = 0.403$) compared to neutral and LD variants ($\mu = 0.303$; $p = 5.85 \times 10^{-6}$). 
+Despite differences in the number of adaptive loci, genetic architecture 3 also showed enrichment of SHAP signal at non-neutral variants ($\mu = 0.394$) relative to neutral and LD sites ($\mu = 0.319$; $p = 8.79 \times 10^{-4}$).
+
+Although effect sizes were modest (Cohen’s $d \approx 0.14$--$0.18$ across architectures), the consistent shift in attribution distributions indicates that adaptive loci are preferentially weighted by the model. Notably, the magnitude of separation between non-neutral and neutral variants was similar across genetic architectures, despite large differences in the total number of causal loci and the extent of linkage disequilibrium. This suggests that feature attribution performance is robust to variation in genetic architecture within the range explored here.
+
+Together, these results demonstrate that SHAP-based feature attribution reliably highlights loci contributing to local adaptation, while also capturing signal from linked regions, consistent with expectations under polygenic adaptation and hitchhiking (?)
+MORE HERE
+
+\begin{figure}[H] % or [h] if you prefer floating
+    \adjustimage{width=1.1\textwidth,center}{figures/shapfigFINAL.pdf}
+    \caption{Feature attribution across genetic architectures.}
+    \label{fig:3}
+\end{figure}
+
+-  SUPP: Linkage Disequilibrium impacts our ability to identify adaptive loci (Maybe discussion, talk about recombination rate changes impact of EL preds, reference supplemental)
+
 
 
 \subsection{Comparison of Ecolocator to other GEA methods}
