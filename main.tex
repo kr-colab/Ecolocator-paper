@@ -161,11 +161,21 @@ Together, these parameter combinations generate a set of evolutionary scenarios 
 
 \subsection{Ecolocator prediction accuracy scales proportionally with strength of local adaptation}
 
-To explore the evolutionary scenarios under which Ecolocator is most suitable, we evaluated its prediction accuracy across a range of simulation parameterizations (Figure 2). For each parameter combination, we ran 100 simulation replicates and summarized the distribution of local adaptation scores calculated from each replicate within each regime (see Supp. Xx). Under restricted dispersal (d = 0.1) and a smaller standard deviation of the fitness function (stronger selection, \(\sigma_K\)=0.5), simulated populations became strongly locally adapted to their environments (LA < 0.1) after 10,000 generations. As dispersal increased, Ecolocator’s ability to predict both geographic location and environmental covariates declined. Environmental covariate prediction was weakened under higher dispersal (d = 0.5, R² = XX), consistent with increased gene flow eroding local adaptation and thereby reducing the correspondence between environmental and genetic variation. Location prediction similarly declined with increasing dispersal, reflecting reduced isolation by distance and weaker population structure in high-dispersal populations.
+To explore the evolutionary scenarios under which Ecolocator is most suitable, we evaluated its prediction accuracy across a range of simulation parameterizations (Figure 2). 
+For each parameter combination, we ran 100 simulation replicates and summarized the distribution of local adaptation scores calculated from each replicate within each regime (see Supp. Xx). 
+Under restricted dispersal (d = 0.1) and a smaller standard deviation of the fitness function (stronger selection, \(\sigma_K\)=0.5), simulated populations became strongly locally adapted to their environments (LA < 0.1) after 10,000 generations. 
+As dispersal increased, Ecolocator’s ability to predict both geographic location and environmental covariates declined. 
+Environmental covariate prediction was weakened under higher dispersal (d = 0.5, R² = XX), consistent with increased gene flow eroding local adaptation and thereby reducing the correspondence between environmental and genetic variation. 
+Location prediction similarly declined with increasing dispersal, reflecting reduced isolation by distance and weaker population structure in high-dispersal populations.
 
-Decreasing selection strength, implemented through increasing the standard deviation of the fitness function, also reduced Ecolocator’s accuracy for environmental covariate prediction. Under weaker selection, intermediate genotypes are penalized less strongly, resulting in reduced local adaptation and a diminished genetic signal of environmental variation. In contrast to dispersal, varying selection strength did not significantly (add stat here showing?) affect location prediction, which is expected given that dispersal was held constant (d = 0.1) across all selection regimes, maintaining a consistent spatial population structure across these simulations. 
+Decreasing selection strength, implemented through increasing the standard deviation of the fitness function, also reduced Ecolocator’s accuracy for environmental covariate prediction. 
+Under weaker selection, intermediate genotypes are penalized less strongly, resulting in reduced local adaptation and a diminished genetic signal of environmental variation. 
+In contrast to dispersal, varying selection strength did not significantly (add stat here showing?) affect location prediction, which is expected given that dispersal was held constant (d = 0.1) across all selection regimes, maintaining a consistent spatial population structure across these simulations. 
 
-Varying genetic architecture produced only a slight (negligible—maybe include pval here of non-signif?) difference in local adaptation ($\vec{\Delta}$LA between GA1 and GA3 = 0.0008), despite the higher number of QTL mutations arising under genetic architecture 3 relative to genetic architecture 1 (number here). Biologically, varying genetic architecture allows us to explore differences in how adaptive effects are distributed across loci, ranging from architectures dominated by fewer, larger-effect QTL to those involving many smaller-effect and potentially redundant loci contributing to similar phenotypic outcomes. Across architectures, Ecolocator’s location prediction accuracy remained unchanged, while environmental covariate prediction accuracy was largely similar, although predictions under genetic architecture 1 exhibited more extreme outliers. Together, these results suggest that Ecolocator’s performance is robust to differences in genetic architecture within the range explored here, while leaving open questions about how effect size distributions and locus redundancy shape model sensitivity under more complex or realistic adaptive scenarios, which we return to in the Discussion.
+Varying genetic architecture produced only a slight (negligible—maybe include pval here of non-signif?) difference in local adaptation ($\vec{\Delta}$LA between GA1 and GA3 = 0.0008), despite the higher number of QTL mutations arising under genetic architecture 3 relative to genetic architecture 1 (number here). 
+Biologically, varying genetic architecture allows us to explore differences in how adaptive effects are distributed across loci, ranging from architectures dominated by fewer, larger-effect QTL to those involving many smaller-effect and potentially redundant loci contributing to similar phenotypic outcomes. 
+Across architectures, Ecolocator’s location prediction accuracy remained unchanged, while environmental covariate prediction accuracy was largely similar, although predictions under genetic architecture 1 exhibited more extreme outliers. 
+Together, these results indicate that Ecolocator performs best under conditions that generate strong local adaptation, with prediction accuracy shaped primarily by dispersal and selection strength and comparatively robust to differences in genetic architecture within the range explored here.
 
 
 \begin{figure}[H] % or [h] if you prefer floating
@@ -174,15 +184,32 @@ Varying genetic architecture produced only a slight (negligible—maybe include 
     \label{fig:2}
 \end{figure}
 
- - different sample sizes, different SNPs fig in supplemental, but reference it here. 
+ - SUPP: different sample sizes, different SNPs fig in supplemental, but reference it here. 
 
-- El predicts better when we have a less biased sampling regime (more representative of population)(supplemental)
 
 
 
 \subsection{Feature attribution methods reveal adaptive loci in silico}
 
--  Linkage Disequilibrium impacts our ability to identify adaptive loci (Maybe discussion, talk about recombination rate changes impact of EL preds, reference supplemental)
+To evaluate whether feature attribution identifies adaptive loci, we summarized SHAP values across all simulation replicates under strong local adaptation ($d = 0.1$, $\sigma_K = 0.5$) and compared attribution scores between non-neutral variants and neutral variants (including sites in linkage disequilibrium). Across all genetic architectures, non-neutral variants consistently received higher SHAP values than neutral sites, indicating that Ecolocator preferentially attributes predictive signal to loci under selection (Figure X). This separation was evident both in individual simulation examples and in distributions aggregated across all replicates.
+
+Under genetic architecture 1, non-neutral variants exhibited higher mean attribution values ($\mu = 0.390$) relative to neutral and LD sites combined ($\mu = 0.292$), with this difference highly significant ($p = 2.21 \times 10^{-4}$). 
+A similar pattern was observed under genetic architecture 2, where non-neutral variants again showed elevated SHAP values ($\mu = 0.403$) compared to neutral and LD variants ($\mu = 0.303$; $p = 5.85 \times 10^{-6}$). 
+Despite differences in the number of adaptive loci, genetic architecture 3 also showed enrichment of SHAP signal at non-neutral variants ($\mu = 0.394$) relative to neutral and LD sites ($\mu = 0.319$; $p = 8.79 \times 10^{-4}$).
+
+Although effect sizes were modest (Cohen’s $d \approx 0.14$--$0.18$ across architectures), the consistent shift in attribution distributions indicates that adaptive loci are preferentially weighted by the model. Notably, the magnitude of separation between non-neutral and neutral variants was similar across genetic architectures, despite large differences in the total number of causal loci and the extent of linkage disequilibrium. This suggests that feature attribution performance is robust to variation in genetic architecture within the range explored here.
+
+Together, these results demonstrate that SHAP-based feature attribution reliably highlights loci contributing to local adaptation, while also capturing signal from linked regions, consistent with expectations under polygenic adaptation and hitchhiking (?)
+MORE HERE
+
+\begin{figure}[H] % or [h] if you prefer floating
+    \adjustimage{width=1.1\textwidth,center}{figures/shapfigFINAL.pdf}
+    \caption{Feature attribution across genetic architectures.}
+    \label{fig:3}
+\end{figure}
+
+-  SUPP: Linkage Disequilibrium impacts our ability to identify adaptive loci (Maybe discussion, talk about recombination rate changes impact of EL preds, reference supplemental)
+
 
 
 \subsection{Comparison of Ecolocator to other GEA methods}
@@ -200,6 +227,7 @@ Varying genetic architecture produced only a slight (negligible—maybe include 
 - what we know about Dfir system (range, importance)
 - data we have for Dfir 
 - steps to how we ran stuff, referencing code, etc. 
+- seed zones 
 
 Simulations provide a controlled setting to benchmark Ecolocator, but the ultimate goal is to evaluate its performance in natural systems where demography, gene flow, and selection interact in complex ways. To this end, we applied Ecolocator to coastal Douglas-fir (*Pseudotsuga menziesii* var. *menziesii*), a keystone species spanning steep climatic gradients along western North America. This case study links theoretical expectations to a practical forestry context, where accurate genotype–environment matching is critical for reforestation and assisted migration planning.
 
