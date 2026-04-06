@@ -12,9 +12,28 @@
 \usepackage[export]{adjustbox}
 \usepackage{float}
 \usepackage[labelfont=bf,justification=raggedright,singlelinecheck=false]{caption}
+\usepackage{fancyhdr}
+\let\href\undefined
+\usepackage[hidelinks]{hyperref}
+\usepackage[capitalize]{cleveref}
+\usepackage{xspace}
 \linenumbers
 
+%%%%%% Running header %%%%%%
+\pagestyle{fancy}
+\fancyhead[R]{\textbf{machine learning local adaptation}}
+
+%%%%%% Commands %%%%%%
 \newcommand{\dfir}{Douglas fir}
+
+\newcommand{\beginsupplement}{%
+    \setcounter{table}{0}
+    \renewcommand{\thetable}{S\arabic{table}}%
+    \setcounter{figure}{0}
+    \renewcommand{\thefigure}{S\arabic{figure}}%
+    \renewcommand{\theHtable}{supp.\arabic{table}}%
+    \renewcommand{\theHfigure}{supp.\arabic{figure}}%
+}
 
 %%%%%% Bibliography %%%%%%
 \usepackage[style=authoryear,
@@ -1087,5 +1106,12 @@ over single-task or univariate alternatives.
 
 
 \printbibliography
+
+\newpage
+\beginsupplement
+\section*{Supplementary Materials}
+
+Supplement goes here.
+
 
 \end{document}
