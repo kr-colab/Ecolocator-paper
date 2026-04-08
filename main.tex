@@ -12,9 +12,28 @@
 \usepackage[export]{adjustbox}
 \usepackage{float}
 \usepackage[labelfont=bf,justification=raggedright,singlelinecheck=false]{caption}
+\usepackage{fancyhdr}
+\let\href\undefined
+\usepackage[hidelinks]{hyperref}
+\usepackage[capitalize]{cleveref}
+\usepackage{xspace}
 \linenumbers
 
+%%%%%% Running header %%%%%%
+\pagestyle{fancy}
+\fancyhead[R]{\textbf{machine learning local adaptation}}
+
+%%%%%% Commands %%%%%%
 \newcommand{\dfir}{Douglas fir}
+
+\newcommand{\beginsupplement}{%
+    \setcounter{table}{0}
+    \renewcommand{\thetable}{S\arabic{table}}%
+    \setcounter{figure}{0}
+    \renewcommand{\thefigure}{S\arabic{figure}}%
+    \renewcommand{\theHtable}{supp.\arabic{table}}%
+    \renewcommand{\theHfigure}{supp.\arabic{figure}}%
+}
 
 %%%%%% Bibliography %%%%%%
 \usepackage[style=authoryear,
@@ -770,17 +789,329 @@ of each withheld individual.
 
 \section{Discussion}
 
-1. Ecolocator predictions tell us about spatial structure and local adaptation of a population (Ecolocator accurately predicts geography and climate of Origin of Douglas fir)
+% Original outline here for reference:
+% 1. Ecolocator predictions tell us about spatial structure and local adaptation
+% 2. Limitations and strengths of its use
+% 3. What this tool/these findings means for Douglas fir / Forestry context
+% 4. Feature attribution discussion
+% 5. Future applications/directions
 
-2. Limitations and stregths of its use
+\subsection{Joint prediction of geography and climate reveals
+spatial structure and local adaptation}
 
-3. What this tool/ these findings means for Douglas fir / Forestry context
+It is well established that multilocus genomic variation
+encodes both neutral spatial structure
+and signals of environmental adaptation.
+Genetic principal components mirror geography
+\citep{novembre_genes_2008},
+allele frequencies covary with environmental gradients
+under local selection
+\citep{coop_using_2010, savolainen_ecological_2013},
+and isolation by environment can generate genetic structure
+independent of geographic distance
+\citep{wang_isolation_2014}.
+Continuous spatial structure leaves particularly strong
+and pervasive signatures in genomic data,
+influencing diversity statistics, demographic inference,
+and genotype--environment associations
+in ways that discrete-deme models fail to capture
+\citep{battey_space_2020, chevy_popgen_ecology_2025}.
+\citet{battey_predicting_2020} demonstrated
+that these spatial signatures are rich enough
+to predict the geographic origin of individuals
+from genotypes alone using deep neural networks,
+achieving high accuracy across diverse taxa.
+Ecolocator extends this framework
+by jointly predicting geographic location
+and climate of origin,
+unifying spatial and environmental inference
+in a single supervised model.
+This allows us to ask not only where an individual comes from,
+but what environmental conditions it is adapted to,
+and how the recovery of each signal
+depends on evolutionary parameters.
+Our simulation results show that prediction accuracy
+scales with the strength of local adaptation:
+under restricted dispersal and strong stabilizing selection,
+the model accurately recovers both the spatial position
+and the environmental conditions experienced by individuals.
+As dispersal increases or selection weakens,
+environmental prediction degrades
+while geographic prediction is affected primarily by dispersal.
+This decoupling is consistent with the expectation
+that these two signals have distinct evolutionary origins:
+geographic prediction depends on isolation-by-distance patterns
+driven by limited gene flow,
+whereas environmental prediction requires
+allele frequency clines that track ecological gradients---a
+signal that is eroded
+when gene flow overwhelms local selection.
 
-4. Feature attribution discussion
+The Douglas-fir case study extends these findings
+to a natural system where the ground truth
+is not fully known.
+%ADK-- Add specific Douglas-fir prediction accuracy numbers here once finalized.
+Ecolocator's predictions of geographic origin and climate variables
+in coastal Douglas-fir are consistent
+with the species' well-documented patterns
+of local adaptation along steep latitudinal
+and elevational gradients in western North America
+\citep{aitken_assisted_2013}.
+That the model performs well in this system---despite
+the absence of a reference genome
+and the relatively modest number of SNPs---suggests
+that the joint prediction framework captures
+biologically meaningful signal even with incomplete genomic resources.
 
-5. Future applications/directions
+\subsection{Strengths and limitations}
+
+A key strength of Ecolocator is its multitask design,
+which simultaneously models geographic and environmental variation.
+This joint framework offers advantages
+over methods that treat spatial and environmental signals separately:
+by sharing information across prediction targets during training,
+the model can leverage correlations
+between spatial structure and environmental gradients
+while also learning to distinguish the two.
+This design also sidesteps a well-documented pitfall
+of conventional GEA methods.
+When population structure aligns with environmental gradients---as
+it often does in nature---methods that correct for structure
+can inadvertently remove true adaptive signal
+along with neutral confounders
+\citep{lotterhos_recombination_2019, booker_wza_2024}.
+Because Ecolocator models geography and environment jointly
+rather than regressing one out of the other,
+it avoids this over-correction
+while still accounting for spatial structure
+through the geographic prediction task.
+Furthermore, the multitask framework
+is naturally suited to systems
+where adaptation occurs along multiple environmental axes.
+\citet{booker_wza_2024} noted that window-based GEA methods
+can lose power when adaptation involves
+semi-independent environmental gradients,
+because the LD patterns around causal alleles
+may differ across gradients.
+Ecolocator's ability to predict multiple environmental covariates
+simultaneously may help retain signal in such cases,
+though this remains to be tested explicitly.
+The approach is agnostic to genetic architecture,
+performing comparably across simulations
+with clustered and distributed QTL arrangements,
+and it requires no prior specification of candidate loci
+or assumptions about the genetic basis of adaptation.
+
+However, several limitations should be noted.
+First, Ecolocator is a supervised method
+that requires georeferenced samples paired
+with environmental data for training.
+Its predictions are therefore bounded
+by the geographic and environmental range of the training set,
+and extrapolation to novel environments
+or unsampled regions should be interpreted cautiously.
+Second, like all machine learning approaches,
+the model learns correlations rather than causal mechanisms.
+High prediction accuracy for an environmental variable
+does not by itself demonstrate that selection
+on that variable has shaped genetic variation.
+As \citet{booker_wza_2024} emphasize,
+GEA signals do not constitute a test of local adaptation:
+correlated environmental predictors,
+spatially structured neutral variation,
+and allelic surfing during historical range expansions
+can all generate allele frequency patterns
+that mimic adaptive signals
+\citep{klopfstein_surfing_2006, novembre_spatial_2009}.
+Isolation by distance alone can inflate
+genotype--environment correlations
+when environmental gradients are spatially autocorrelated
+\citep{meirmans_ibd_2012}.
+Ecolocator's joint prediction framework
+does not resolve this fundamental ambiguity;
+high environmental prediction accuracy
+could reflect true adaptive signal, demographic history,
+or both.
+Third, our simulations use a simplified landscape
+with a single environmental axis
+and a modest genome size.
+Natural systems involve many correlated environmental variables,
+complex demographic histories,
+and genomes orders of magnitude larger,
+all of which may affect model performance in ways
+not fully captured here.
+Finally, the resolution of feature attribution
+is inherently limited by linkage disequilibrium:
+SHAP values highlight genomic regions
+rather than individual causal variants,
+particularly when adaptive loci are in LD
+with surrounding neutral sites.
+
+\subsection{Implications for Douglas-fir management and forestry}
+
+For forest managers, Ecolocator addresses a practical need:
+matching seed sources to planting sites
+under current and projected future climates.
+Reforestation programs have long relied on seed zones
+and provisional seed transfer guidelines
+derived from common-garden trials,
+but these frameworks are increasingly strained
+by the pace of climate change
+\citep{aitken_bemmels_2016}.
+Genomic tools that can predict the climate of origin
+of a given genotype offer a complementary approach,
+enabling managers to evaluate whether existing seed sources
+are well-matched to the conditions
+they will encounter at a planting site.
+
+Coastal Douglas-fir is a natural test case for this application.
+Its economic importance, extensive provenance trial data,
+and strong signals of local adaptation along climate gradients
+provide both the motivation and the validation framework
+for genomic prediction tools.
+%ADK-- Add specific implications: e.g., which seed sources are predicted to be well/poorly matched under climate projections? Any actionable findings?
+By predicting climate of origin alongside geographic location,
+Ecolocator provides information
+that is directly relevant to seed transfer decisions:
+two seed sources from similar geographic locations
+may differ in their predicted climate of origin,
+reflecting adaptive differences
+that would be missed by geography-based guidelines alone.
+
+More broadly, the approach is not limited to Douglas-fir
+or to species with extensive prior characterization.
+Any system with georeferenced genotypes
+and associated environmental data
+can be analyzed with Ecolocator,
+making it a potentially useful tool
+for less-studied species
+where common-garden data are scarce or absent.
+
+\subsection{Feature attribution as a tool
+for identifying adaptive loci}
+
+SHAP-based feature attribution provides a window
+into which genomic regions drive Ecolocator's predictions.
+Our simulation results demonstrate
+that non-neutral variants consistently receive
+higher attribution scores than neutral sites,
+confirming that the model preferentially weights loci
+under selection.
+This signal persists across genetic architectures
+despite modest effect sizes (Cohen's $d \approx 0.14$--$0.18$),
+indicating that SHAP can detect the distributed signature
+of polygenic adaptation
+even when individual locus effects are small.
+
+However, the modest effect sizes also highlight
+an inherent challenge:
+under polygenic adaptation,
+the signal at any single locus is subtle,
+and attribution scores for adaptive and neutral loci
+overlap substantially.
+This is consistent with the broader finding
+that GEA methods are generally underpowered
+under weak selection,
+and that detecting most causal loci
+requires tolerating a substantial false positive rate
+\citep{lotterhos_whitlock_2015, booker_wza_2024}.
+Ecolocator's feature attribution faces the same trade-off:
+thresholding on SHAP values to identify candidate loci
+will inevitably involve a balance
+between sensitivity and specificity
+that depends on the (unknown) strength of selection
+and the genetic architecture of adaptation.
+Linkage disequilibrium further complicates interpretation,
+as SHAP values are elevated not only at causal variants
+but also at linked neutral sites.
+This is expected---LD spreads adaptive signal
+across genomic neighborhoods---but
+it means that high-attribution regions
+should be interpreted as candidate windows
+rather than as pinpointing individual causal variants.
+%ADK-- Reference the LD supplemental analyses here once finalized.
+
+The permutation-based sensitivity analyses
+complement SHAP by providing a different lens
+on the same question.
+By disrupting specific genomic regions
+and measuring the resulting loss in prediction accuracy,
+these analyses confirm that adaptive windows
+disproportionately contribute to model performance.
+Together, the two approaches---per-locus attribution via SHAP
+and region-level disruption via permutation---provide
+convergent evidence that Ecolocator's predictions
+are grounded in biologically meaningful genetic variation.
+
+Notably, SHAP-based attribution from Ecolocator
+shows greater power to identify adaptive loci
+than the WZA \citep{booker_wza_2024}
+and top-candidate approaches
+in our simulation comparisons (Figure~\ref{fig:gea_comparison}).
+%ADK-- fig:gea_comparison needs to be defined; currently the GEA figure and SHAP figure both use \label{fig:3} -- fix duplicate labels.
+This advantage likely reflects the fact
+that SHAP attribution operates on a model
+that has already learned the joint relationship
+between genotypes, geography, and environment,
+rather than testing each locus independently
+against a single environmental predictor.
+By conditioning on a trained multitask model,
+SHAP can capture contributions from loci
+whose individual marginal correlations with environment are weak
+but whose combined effect is detectable
+in the context of the full genotype.
+This result suggests that supervised prediction
+followed by post hoc feature attribution
+may be a powerful complement to traditional GEA approaches,
+particularly under polygenic adaptation
+where per-locus signals are subtle.
+
+\subsection{Future directions}
+
+Several extensions of this work merit exploration.
+First, our simulations assume a purely additive genetic architecture,
+but epistasis and pleiotropy are pervasive features
+of quantitative trait variation
+\citep{mackay_pleiotropy_2024}
+that can substantially alter the outcome
+of genome scans for local adaptation
+\citep{jones_epistasis_2019}.
+Epistatic interactions may generate adaptive allele combinations
+whose effects are invisible to single-locus attribution methods,
+while pleiotropic constraints can limit
+or redirect the response to spatially varying selection
+\citep{yeaman_polygenic_2022}.
+Extending simulations to include non-additive architectures
+would clarify whether Ecolocator's prediction accuracy
+and feature attribution remain robust
+when the genotype--phenotype map is more complex.
+Second, expanding the environmental complexity
+of simulations---multiple correlated environmental axes,
+spatially autocorrelated landscapes,
+and temporally varying selection---would
+better approximate the conditions
+under which Ecolocator will be applied in practice.
+Third, the framework could be extended
+to predict performance under future climate scenarios
+by applying trained models to projected environmental surfaces,
+generating spatially explicit maps of predicted maladaptation
+that could inform assisted migration planning.
+Finally, systematic comparison
+with a broader suite of GEA methods
+across a wider range of evolutionary scenarios
+would help delineate the conditions
+under which Ecolocator's joint prediction approach
+offers the greatest advantage
+over single-task or univariate alternatives.
 
 
 \printbibliography
+
+\newpage
+\beginsupplement
+\section*{Supplementary Materials}
+
+Supplement goes here.
+
 
 \end{document}
