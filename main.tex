@@ -358,49 +358,12 @@ and environment-driven selection.
     \text{Loss} = \lambda \left( \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 \right) + (1-\lambda) \left( \sqrt{\sum_{i=1}^{n} (z_i - \hat{z}_i)^2} \right)
 \end{equation}
 
-\subsection{Feature attribution}
-
-To quantify the contribution of individual genetic features
-to Ecolocator's predictions,
-we applied SHapley Additive exPlanations
-\citep[SHAP;][]{lundberg_shap_2017},
-a game-theoretic framework that assigns importance scores
-based on each feature's marginal contribution to the model output
-across all possible feature coalitions.
-Attributions were computed separately for each prediction target
-(latitude, longitude, and environmental covariates),
-allowing the genetic contributions to be evaluated
-conditional on the response variable of interest.
-SHAP values were calculated on trained models
-using the genotype matrix as input,
-attributing predictive signal to individual loci
-while accounting for nonlinear interactions among sites.
-To complement SHAP-based attribution
-and assess the robustness of inferred signals,
-we performed a series of permutation-based sensitivity analyses
-in which subsets of the genotype matrix
-were shuffled across individuals prior to prediction.
-These permutations included random shuffling
-of increasing proportions of sites genome-wide,
-targeted permutations of predefined genomic windows
-containing selected variants,
-and permutations of loci in linkage disequilibrium (LD)
-with those windows.
-LD partners were identified using pairwise correlation thresholds
-(see Supp.\ Xx),
-and permutations were applied either to the selected window alone
-or jointly with subsets of LD-linked sites
-stratified by LD strength (see Supp.\ Xx).
-This framework enables systematic evaluation
-of how predictive performance responds to disruption
-of adaptive loci, correlated hitchhiking regions,
-and broader neutral genetic structure,
-providing an interpretable link between model predictions,
-genetic architecture, and simulated evolutionary processes.
+More here and above about API usage and implementation details, 
+ending in a numbered list of the main steps of the workflow. 
 
 \section{Methods}
 
-\subsection{Simulating local adaptation across heterogeneous landscapes}
+\subsection{Simulating local adaptation in continuous space (non-Wright--Fisher)}
 
 To explore under which evolutionary scenarios Ecolocator performs best,
 we use forward-in-time population genetic simulations in SLiM (CITE).
@@ -611,6 +574,285 @@ This variation provides the basis for evaluating
 when and where Ecolocator most effectively detects
 spatial--environmental signals of adaptation.
 
+While these simulations allow us to systematically explore how key evolutionary parameters shape local adaptation in continuous space,
+they differ from the discrete, stepping-stone simulation framework
+used in prior evaluations of genome--environment association (GEA) methods (CITE).
+To facilitate more direct comparison with these approaches,
+we implemented an additional set of simulations
+based on the Wright--Fisher framework
+used to benchmark the Weighted-Z Analysis (WZA),
+a method that aggregates SNP-level association signals across genomic windows to detect loci involved in local adaptation \citep{booker_wza_2024}.
+
+\subsection{Simulating local adaptation in discrete space (Wright--Fisher)}
+
+To complement our spatially explicit simulations,
+we implemented a second set of forward-in-time simulations
+based on the Wright--Fisher framework
+described in \citet{booker_wza_2024}. Simulation design and parameterization closely followed
+the implementation provided in the WZA GitHub repository
+(\url{https://github.com/TBooker/WZA/tree/master}),
+with minor modifications to ensure compatibility
+with the current version of SLiM.
+These simulations were designed to more closely mirror
+the evolutionary scenarios used to evaluate WZA,
+allowing for a more direct comparison
+between Ecolocator and existing GEA methods.
+
+Following \citet{booker_wza_2024},
+we simulated a two-dimensional stepping-stone metapopulation
+composed of discrete demes arranged on a grid,
+with a constant population size per deme
+under Wright--Fisher dynamics.
+Migration was restricted to neighboring demes,
+producing a pattern of isolation by distance
+and spatial genetic structure across the landscape.
+Environmental heterogeneity was defined
+using the British Columbia (BC) map of climatic variation,
+which assigns each deme a local phenotypic optimum
+based on discretized environmental values.
+
+In contrast to our main simulations,
+which model stabilizing selection in continuous space,
+these Wright--Fisher simulations implement directional selection
+on a small number of causal loci.
+Specifically, a set of 12 loci distributed across the genome
+contribute to local adaptation,
+with alleles experiencing spatially varying fitness effects
+depending on the local environmental optimum.
+Selected mutations were modeled as semidominant,
+such that heterozygous individuals experience intermediate fitness effects,
+and the strength of selection was controlled by a fixed selection coefficient.
+This formulation produces strong genotype--environment associations
+localized to a relatively small number of genomic regions.
+
+Simulations were run in two phases:
+an initial neutral burn-in period
+to establish population structure and linkage patterns,
+followed by a directional selection phase
+during which adaptive alleles increase in frequency
+in a spatially heterogeneous manner.
+Tree-sequence recording was used to capture
+the full genealogical history of each simulation,
+and neutral mutations were subsequently overlaid
+to generate genome-wide variation.
+
+To prepare as input to Ecolocator, deme coordinates were encoded
+as latitude and longitude,
+using the row and column indices of each deme in the grid,
+and the environmental variable was defined
+as the local phenotypic optimum for each deme.
+Genotype matrices were extracted from tree sequences
+and used as input for both Ecolocator
+and downstream GEA analyses.
+
+These Wright--Fisher simulations provide a complementary scenario
+to our main simulations,
+in which local adaptation is driven by a smaller number
+of loci under directional selection
+and spatial structure is defined by discrete demes.
+As a result, they represent a comparatively simpler setting
+in which genotype--environment associations are strong
+and more localized in the genome.
+This allows us to assess how Ecolocator performs
+in a simpler regime,
+providing a useful contrast to more complex spatial scenarios.
+
+\subsection{Feature attribution}
+
+To quantify the contribution of individual genetic features
+to Ecolocator's predictions,
+we applied SHapley Additive exPlanations
+\citep[SHAP;][]{lundberg_shap_2017},
+a game-theoretic framework that assigns importance scores
+based on each feature's marginal contribution to the model output
+across all possible feature coalitions.
+Attributions were computed separately for each prediction target
+(latitude, longitude, and environmental covariates),
+allowing the genetic contributions to be evaluated
+conditional on the response variable of interest.
+SHAP values were calculated on trained models
+using the genotype matrix as input,
+attributing predictive signal to individual loci
+while accounting for nonlinear interactions among sites.
+To complement SHAP-based attribution
+and assess the robustness of inferred signals,
+we performed a series of permutation-based sensitivity analyses
+in which subsets of the genotype matrix
+were shuffled across individuals prior to prediction.
+These permutations included random shuffling
+of increasing proportions of sites genome-wide,
+targeted permutations of predefined genomic windows
+containing selected variants,
+and permutations of loci in linkage disequilibrium (LD)
+with those windows.
+LD partners were identified using pairwise correlation thresholds
+(see Supp.\ Xx),
+and permutations were applied either to the selected window alone
+or jointly with subsets of LD-linked sites
+stratified by LD strength (see Supp.\ Xx).
+This framework enables systematic evaluation
+of how predictive performance responds to disruption
+of adaptive loci, correlated hitchhiking regions,
+and broader neutral genetic structure,
+providing an interpretable link between model predictions,
+genetic architecture, and simulated evolutionary processes.
+Feature attribution analyses were performed separately
+for each simulation regime,
+allowing us to assess how the recovery of adaptive loci
+depends on the underlying evolutionary scenario.
+
+\subsection{Comparing Ecolocator to other GEA methods}
+
+To benchmark the ability of Ecolocator-derived feature attribution
+to identify adaptive loci,
+we compared SHAP-based variant rankings
+to two genome--environment association (GEA) approaches:
+the Weighted-Z Analysis (WZA) \citep{booker_wza_2024}
+and the top-candidate method \citep{yeaman_convergent_2016}.
+These comparisons were performed across both simulation regimes
+described above,
+allowing us to evaluate method performance
+under distinct evolutionary scenarios.
+
+A range of GEA methods exist,
+including mixed-model and latent factor approaches (CITEEE),
+that evaluate associations between individual SNPs
+and environmental or population-specific covariates.
+Because linked markers may share evolutionary histories
+or reflect the effects of linkage disequilibrium and hitchhiking,
+adaptive signal is also often considered
+at the level of broader genomic regions
+\citep{gautier_baypass_2015, booker_wza_2024}.
+SNP-level and region-level summaries therefore capture
+complementary aspects of local adaptation:
+the former localize candidate sites,
+whereas the latter summarize the extent to which signal is clustered
+across linked loci.
+
+WZA and the top-candidate method
+are both window-based approaches designed to capture
+this regional structure in adaptive signal.
+WZA combines SNP-level association statistics across genomic windows
+using a weighted Z framework,
+whereas the top-candidate method tests whether a region
+contains an excess of highly associated SNPs.
+As Booker et al.\ argue,
+aggregating information across linked sites can reduce noise
+and take advantage of the elevated linkage disequilibrium
+expected around loci involved in local adaptation.
+Consistent with this intuition,
+\citet{booker_wza_2024} showed that WZA and the top-candidate method
+performed as well as or better than a range of single-SNP methods,
+including Kendall's $\tau$, BayPass, LFMM, and RDA,
+across both strong and weak local adaptation scenarios.
+
+We therefore focus on WZA and the top-candidate method
+as representative region-based approaches
+that provide strong benchmarks for comparison.
+Comparing SHAP-based attribution from Ecolocator to these methods
+provides a direct test of whether SNP-level importance scores
+derived from a trained predictive model
+can recover adaptive loci while preserving resolution
+at the level of individual variants.
+
+\paragraph{Empirical p-values from SHAP.}
+SHAP values do not inherently provide a measure of statistical significance,
+as they represent model-derived feature importance scores
+rather than hypothesis test statistics.
+To enable direct comparison with GEA methods,
+which report p-values for association,
+we transformed SHAP-based rankings into an empirical p-value framework.
+
+SHAP values were first aggregated across samples
+by computing the mean absolute SHAP value per SNP.
+Variants were then ranked from highest to lowest
+based on this aggregated score.
+To enable comparison with GEA-derived p-values,
+we calculated empirical p-values
+using a rank-based false discovery rate (FDR) framework.
+At each rank position $i$,
+all variants up to that point were treated as significant,
+and the proportion of false positives
+(neutral variants)
+relative to the total number of variants in the set
+was calculated.
+This assigns each SNP a p-value corresponding
+to the expected false discovery rate
+at its SHAP threshold.
+Because this approach relies on known neutrality labels,
+these p-values represent an empirical,
+supervised estimate of significance
+rather than a model-based or permutation-based test.
+
+\paragraph{Weighted-Z Analysis (WZA).}
+WZA aggregates SNP-level signals
+within genomic regions
+to test whether a window shows evidence
+of association with environmental variation.
+Following \citet{booker_wza_2024},
+we first computed per-SNP association statistics
+by measuring the correlation
+between genotype and environmental values,
+and obtained a p-value for each SNP.
+These SNP-level p-values were then transformed
+into Z-scores and combined within genomic windows
+using a weighted Z-test,
+where weights are proportional to expected heterozygosity,
+such that SNPs with higher heterozygosity
+contribute more strongly to the window-level statistic.
+This weighting scheme reflects the greater information content
+of polymorphic sites with intermediate allele frequencies.
+
+To account for variation in the number of SNPs per window,
+we applied a polynomial-based correction
+in which the expected mean and variance
+of window-level Z-scores were modeled
+as functions of SNP count.
+Corrected p-values (\texttt{Z\_pVal})
+were then obtained under the assumption of normality.
+In parallel,
+the top-candidate method identifies windows
+enriched for highly significant SNPs
+using a binomial test based on the upper tail
+of the SNP-level p-value distribution.
+
+\paragraph{Integration across methods.}
+For each simulation replicate,
+we combined SNP-level SHAP p-values,
+window-level WZA p-values,
+and top-candidate p-values
+into a unified dataset.
+Window-based statistics were mapped back to individual SNPs
+using SNP-to-window assignments,
+allowing direct comparison across methods
+at the SNP level.
+To obtain a genome-wide assessment,
+variant-level results were concatenated
+across simulation replicates
+within each genetic architecture
+and simulation regime.
+
+\paragraph{Performance evaluation.}
+Method performance was evaluated
+using precision--recall (PR) curves,
+which are appropriate for imbalanced datasets
+with relatively few adaptive variants.
+For each method,
+p-values were transformed to scores
+($-\log_{10}(p)$),
+such that larger values correspond
+to stronger evidence of association.
+Precision and recall were computed
+across all thresholds,
+and area under the precision--recall curve (AUC-PR)
+was used as a summary statistic.
+The random baseline was defined
+as the proportion of adaptive variants
+in the dataset. Performance was evaluated separately within each simulation regime,
+allowing direct comparison of method behavior
+under both spatially explicit and Wright--Fisher evolutionary scenarios.
+
+
 \section{Results}
 
 \subsection{Ecolocator prediction accuracy scales proportionally
@@ -709,7 +951,7 @@ Together, these results demonstrate that SHAP-based feature attribution reliably
 MORE HERE
 
 \begin{figure}[H] % or [h] if you prefer floating
-    \adjustimage{width=1.1\textwidth,center}{figures/shapfigFINAL.pdf}
+    \adjustimage{width=1.1\textwidth,center}{figures/shapfigMAIN.pdf}
     \caption{Feature attribution across genetic architectures.}
     \label{fig:3}
 \end{figure}
@@ -717,15 +959,84 @@ MORE HERE
 -  SUPP: Linkage Disequilibrium impacts our ability to identify adaptive loci (Maybe discussion, talk about recombination rate changes impact of EL preds, reference supplemental)
 
 
-
 \subsection{Comparison of Ecolocator to other GEA methods}
+
+A notable capability of machine learning approaches 
+like Ecolocator is that, in this context, 
+feature attribution methods provide locus-level
+importance scores that can be interpreted analogously
+to genome--environment association statistics.
+This allows direct comparison between
+model-derived attribution scores
+and traditional GEA approaches
+for identifying adaptive loci.
+Using SHAP values computed from trained Ecolocator models,
+we ranked variants according to their contribution
+to environmental prediction
+and compared their performance
+to the Weighted-Z Analysis (WZA)(\citep{booker_wza_2024})
+and the top-candidate method (\citep{yeaman_convergent_2016}).
+
+To quantify detection accuracy,
+we calculated empirical false discovery rate (FDR)
+p-values from SHAP rankings
+and evaluated performance
+using precision--recall curves.
+We concatenated variant-level predictions
+across 100 simulation replicates
+under each genetic architecture,
+providing a robust assessment
+of genome-wide detection performance.
+(Figure~\ref{fig:4}).
+
+Across all architectures,
+SHAP-based attribution consistently recovered
+a higher proportion of true adaptive variants
+than either comparison method.
+Under genetic architecture 1,
+SHAP achieved an AUC-PR of 0.173,
+substantially exceeding WZA (0.079)
+and the top-candidate approach (0.078),
+and outperforming the random expectation (0.043).
+Under genetic architecture 2,
+SHAP again showed improved performance
+(AUC-PR = 0.187)
+relative to WZA (0.065)
+and the top-candidate method (0.063),
+with a random baseline of 0.051.
+Similarly, under genetic architecture 3,
+SHAP yielded an AUC-PR of 0.179,
+compared to 0.082 for WZA
+and 0.079 for the top-candidate approach
+(random = 0.071).
+
+Performance differences were most pronounced
+at low recall values,
+where SHAP maintained substantially higher precision,
+indicating that the highest-ranked loci
+were enriched for true causal variants.
+In contrast,
+WZA and the top-candidate method
+showed rapid declines in precision,
+approaching random expectations
+across much of the recall range.
+Notably, SHAP maintained improved performance
+across all genetic architectures,
+despite differences in the number
+and genomic distribution of adaptive loci.
+
+These results demonstrate that
+feature attribution derived from Ecolocator
+provides improved recovery of adaptive variants
+relative to traditional GEA approaches,
+particularly when prioritizing
+high-confidence candidate loci.
 
 \begin{figure}[H] % or [h] if you prefer floating
     \adjustimage{width=1.1\textwidth,center}{figures/GEAfig.pdf}
     \caption{AUC-PR Curve Comparison between SHAP, WZA, and Top-candidate methods.}
-    \label{fig:3}
+    \label{fig:4}
 \end{figure}
-
 
 
 \subsection{Case study: Predicting suitable environments
