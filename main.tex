@@ -1042,59 +1042,354 @@ high-confidence candidate loci.
 \subsection{Case study: Predicting suitable environments
 for coastal Douglas Fir using Ecolocator}
 
-- what we know about Dfir system (range, importance)
-- data we have for Dfir
-- steps to how we ran stuff, referencing code, etc.
-
 Simulations provide a controlled setting to benchmark Ecolocator,
 but the ultimate goal is to evaluate its performance in natural systems
-where demography, gene flow, and selection interact in complex ways.
-To this end, we applied Ecolocator to coastal Douglas-fir
-(*Pseudotsuga menziesii* var. *menziesii*),
-a keystone species spanning steep climatic gradients
-along western North America.
-This case study links theoretical expectations
-to a practical forestry context,
-where accurate genotype--environment matching
-is critical for reforestation and assisted migration planning.
+where demography, gene flow, selection, and management history
+interact in complex ways.
+To this end,
+we applied Ecolocator to coastal Douglas-fir
+(\textit{Pseudotsuga menziesii} var.\ \textit{menziesii}),
+a foundation conifer of western North American forests
+and one of the most extensively studied tree species
+in silviculture, forest genetics, and reforestation research [CITE].
+Coastal Douglas-fir spans steep gradients in temperature,
+precipitation, elevation, and summer drought,
+and decades of provenance trials and seed-transfer research
+have shown that populations are locally adapted
+to this environmental variation [CITE].
+This history makes Douglas-fir a particularly powerful empirical system
+for evaluating Ecolocator:
+the species has strong practical relevance for reforestation
+and assisted migration,
+but it also has a well-developed biological and management framework
+for interpreting whether predicted climates of origin
+are meaningful in practice.
+Rather than evaluating predictions only with generic statistical metrics,
+we can compare Ecolocator's climate predictions
+to the same seed-transfer expectations
+that have long guided Douglas-fir management.
 
-Our empirical dataset consisted of 348 (WILL CHANGE)
-coastal Douglas-fir individuals genotyped
-by the U.S. Forest Service using Affymetrix SNP arrays.
-Because Douglas-fir is monoecious,
-seeds provided both the tissue for genotyping
-and a representation of the maternal trees
-from which they were collected.
-The array yielded approximately 18,000 SNPs (WILL CHANGE),
-though their genomic positions are unknown
-due to the large size ($\sim$18 Gb)
-and incomplete assembly of the Douglas-fir genome.
-The sampled individuals were designated as ``plus'' trees,
-meaning they were identified in provenance trials
+Although Douglas-fir is wind-pollinated and highly outcrossing,
+both pollen and seed movement are often spatially restricted,
+which is consistent with the strong geographic structure
+and local adaptation documented across the species' range [CITE].
+Douglas-fir populations show strong signatures of local adaptation,
+with allele frequencies and growth phenology closely tracking
+latitudinal and elevational climate gradients [CITE].
+This pattern is well-documented in provenance trials
+spanning much of the species' range,
+which consistently show home-site advantage
+and steep genotype--environment interactions
+along gradients of winter cold, summer drought,
+and heat accumulation [CITE].
+The U.S. Forest Service (USFS) has formalized
+these adaptive boundaries into seed transfer zones,
+which define the geographic and climatic limits
+within which seed can be moved
+while preserving expected local adaptation [CITE].
+Seed zones therefore encode
+the climate tolerances that managers already use
+to make reforestation decisions,
+making them a particularly meaningful benchmark
+for evaluating whether Ecolocator's climate predictions
+are not merely statistically accurate
+but also biologically and management relevant.
+
+% NOTE FOR RICH: Please check citations throughout this section and
+% flag any claims that need revision or additional nuance.
+% NOTE FOR DISCUSSION: Commercial seed suppliers may not have advertised
+% source-identified Douglas-fir seed before 1933,
+% with a major transition in Manning/SilvaSeed catalogs between 1932
+% and 1933. This could be useful historical context for why source
+% identification became central to reforestation practice.
+% NOTE FOR DISCUSSION: A 1954 source notes that foresters recognized
+% the importance of seed origin for reforestation success. This could
+% be a strong historical bridge between early seed sourcing practice
+% and our use of seed zones as a validation benchmark.
+
+\subsubsection*{Data and model application}
+
+Our empirical dataset consisted of 348 coastal Douglas-fir individuals
+sampled across Oregon and Washington
+and genotyped by the USFS using the 58K Axiom Affymetrix SNP array,
+yielding approximately 18,000 SNPs after filtering.
+Because the Douglas-fir genome is large ($\sim$18 Gb)
+and incompletely assembled,
+the genomic positions of array SNPs are unknown,
+precluding chromosome- or window-level analyses.
+Sampled individuals were designated as ``plus'' trees,
+identified through provenance trials
 or field observations as being particularly well-adapted
 to their local environments.
-To capture the climatic conditions under which these trees
-likely experienced the strongest selection during early development,
-we paired each genotype with 1970--2000 (WILL CHANGE)
-baseline climate normals from ClimateNA.
-From these records, we focused on three variables
+This selection criterion biases the dataset
+toward individuals with strong genotype--environment correspondence,
+which may aid climate prediction
+while potentially understating performance
+on less-characterized samples.
+
+Because genotyping was performed on seeds from monoecious Douglas-fir,
+seed genotypes served as a proxy for the sampled maternal source tree
+and its origin.
+However,
+seed genotypes include both maternal and paternal contributions.
+This distinction is important because each seed tree may be pollinated
+by multiple nearby pollen donors,
+producing half-sib families rather than genetically identical
+representatives of the maternal tree.
+Given the limited movement of Douglas-fir pollen,
+paternal contributions are likely to come primarily from nearby trees,
+but this remains a source of uncertainty in assigning each genotype
+to a maternal source environment.
+% NOTE FOR DISCUSSION/LIMITATIONS: A small number of maternal trees
+% may account for a large fraction of seed within a local area.
+% This could lead to overrepresentation of particular maternal
+% genotypes or families in the dataset.
+% NOTE FOR METHODS/LIMITATIONS: Consider clarifying whether the sampling
+% design avoids multiple seeds from the same maternal tree, or whether
+% any family-level structure could influence model performance.
+
+To capture the climate conditions
+under which these trees likely experienced the strongest selection
+during early establishment,
+we paired each genotype with 1970--2000 baseline climate normals
+from ClimateNA.
+% NOTE: Consider whether temporal alignment between tree age
+% and climate period should be discussed further here or in Discussion.
+We focused on three climate variables
 previously shown to be key determinants
 of Douglas-fir growth and local adaptation:
-mean cold month temperature, mean summer precipitation,
-and summer heat-moisture index [CITE].
+mean cold month temperature (MCMT),
+summer heat-moisture index (SHM),
+and mean summer precipitation (MSP) [CITE].
+These variables capture the primary axes
+of climate variation across the species' range
+and correspond directly to the selection pressures
+indexed by USFS seed zones.
 
 Prior to model training,
 we applied standard preprocessing to ensure comparability
 across genomic and environmental inputs,
 as detailed in the preprocessing section.
 These steps minimize technical artifacts
-and place all predictors on compatible scales for joint prediction,
-consistent with best practices in genomic prediction analyses.
-We then trained Ecolocator on this dataset
-in a leave-one-out cross-validation framework,
-enabling direct comparison between predicted values
-and the true climate and location attributes
-of each withheld individual.
+and place all predictors and response variables
+on compatible scales for joint prediction.
+Following these preprocessing steps,
+we trained Ecolocator on this dataset
+using leave-one-out cross-validation,
+enabling direct comparison between
+each individual's predicted and known
+geographic coordinates and climate values.
+Geographic coordinates and environmental covariates
+were centered and scaled prior to model training.
+% NOTE FOR METHODS/DISCUSSION: MSP and SHM are bounded by zero
+% and positively skewed, unlike latitude, longitude, and MCMT.
+% This may explain negative back-transformed predictions for MSP
+% and SHM if all variables are treated with the same centering/scaling
+% approach. Possible transformations to test include ln(x),
+% rank-based transforms, Box-Cox transformations for variables without
+% zeros, log-sinh transformations for heavy skew, or
+% precipitation-specific approaches such as the standardized
+% precipitation index if zeros are common. The ClimateNA developers
+% may be useful contacts for best practices on transforming
+% precipitation and aridity variables.
+
+\subsubsection*{Prediction accuracy}
+
+Ecolocator predicted geographic origin
+with an average error of [XX] km [PLACEHOLDER],
+consistent with the spatial resolution
+expected given the density and range
+of the training samples.
+% NOTE: Insert median geographic error and compare to
+% Locator's performance on comparable datasets if available.
+
+Climate predictions varied by variable.
+MCMT was predicted with $R^2 = $ [XX] [PLACEHOLDER],
+SHM with $R^2 = $ [XX] [PLACEHOLDER],
+and MSP with $R^2 = $ [XX] [PLACEHOLDER].
+% NOTE: Insert R² values from leave-one-out output.
+% Also note: some MSP predictions were negative -- flag whether
+% this was addressed via transformation or left as-is.
+The strongest predictive signal was recovered for MCMT,
+consistent with its role as a primary driver of physiological
+differentiation among Douglas-fir populations [CITE].
+SHM showed a similar pattern,
+whereas MSP exhibited lower predictive accuracy
+and a wider spread of residuals,
+possibly reflecting greater environmental noise,
+stronger skew in precipitation-related variables,
+or the influence of local topographic variation
+on precipitation that is not well-captured
+by the coarser climate grid.
+Because MSP and SHM are bounded and positively skewed,
+future model runs should evaluate whether alternative transformations
+improve prediction accuracy and prevent biologically impossible
+negative predictions.
+% NOTE FOR METHODS/DISCUSSION: We should decide whether to rerun
+% Ecolocator with transformed MSP and SHM before finalizing these
+% empirical results. If not, this should be clearly framed as a
+% limitation and motivation for variable-specific preprocessing.
+
+\subsubsection*{Validation against USFS seed zones}
+
+To assess whether Ecolocator's prediction errors
+are biologically and practically acceptable,
+we compared predicted MCMT values
+to the climate envelopes defined by USFS seed transfer zones.
+For this comparison,
+we compiled spatial layers for the first-generation Oregon
+and Washington seed zones and the 1970 California seed zones,
+along with climate summaries for each seed zone.
+Here, we focus on the Oregon and Washington comparison,
+using the historical seed zone definitions
+as a conservative benchmark [CITE].
+These first-generation seed zones were designed
+to restrict long-distance seed movement
+and maintain local adaptation in reforested stands.
+Although many current seed-transfer interpretations
+allow broader movement,
+the historical zones provide a stringent test
+of whether Ecolocator predictions fall within
+climate ranges that were originally treated
+as acceptable for seed movement.
+
+Climate summaries were calculated within
+seed zone--elevation band combinations.
+Because historical elevation bands varied
+from approximately 500 to 1000 ft,
+climate summaries were aggregated into uniform
+1000-ft elevation intervals [CITE].
+For each individual,
+we determined whether Ecolocator's predicted MCMT
+fell within the percentile-defined climate range
+of that individual's source seed zone and elevation band.
+Specifically,
+we compared predicted MCMT values to the
+100th percentile range,
+defined by the minimum and maximum MCMT values,
+the 98th percentile range,
+defined by the 1st and 99th percentiles,
+and the 90th percentile range,
+defined by the 5th and 95th percentiles.
+
+The results were striking:
+approximately 91\% of Ecolocator predictions
+fell within the 100th percentile MCMT range
+of the source seed zone,
+76\% fell within the 98th percentile range,
+and 70\% fell within the 90th percentile range
+(Figure~\ref{fig:seedzone}).
+% NOTE: add fig
+This benchmark is interpretable in concrete management terms.
+Nearly all seed zone--elevation bands
+in Oregon and Washington span 2\textdegree C or more in MCMT,
+and seed zones defined in later decades often span
+closer to 3\textdegree C in MCMT.
+That Ecolocator places the majority of predictions
+within the more restrictive historical envelopes,
+even using a modest dataset
+of 348 trees and SNPs without known genomic coordinates,
+suggests that prediction error is not merely small
+in a statistical sense,
+but often falls within the tolerance thresholds
+that practitioners use
+to make seed transfer decisions.
+
+Prediction success was not uniform across seed zones
+(Figure~\ref{fig:seedzone_byzone}).
+% NOTE: add fig
+Coastal seed zones in Oregon and Washington
+showed the highest correspondence between
+predicted MCMT values and seed zone climate ranges,
+whereas several Cascade seed zones showed
+lower prediction accuracy.
+In our initial assessment,
+samples from seed zones 492 and higher
+showed particularly large deviations between
+predicted MCMT values and observed seed zone ranges.
+These are primarily Cascade seed zones,
+and the largest deviations appeared to be localized
+near or east of the Cascade crest,
+where some sampled trees show measurable admixture
+with the interior variety
+(\textit{P.\ menziesii} var.\ \textit{glauca}) [CITE].
+% NOTE FOR RICH: Please confirm this interpretation is accurate
+% and suggest a citation for glauca introgression if needed.
+One plausible explanation is that
+trees with greater interior Douglas-fir ancestry
+may be predicted with higher error
+if the model is primarily trained on
+coastal Douglas-fir genomic backgrounds.
+A second possibility is that
+steep elevational gradients near the Cascade crest
+generate sharp local climate transitions
+that are difficult to model
+given the density and precision of the current sample set.
+Source locations for many trees in this dataset
+were recorded using Township--Range--Section notation
+and elevation data predating GPS,
+and coordinate rounding or digitization errors
+may have introduced positional inaccuracies
+that are amplified in topographically complex terrain.
+% NOTE: Decide how much detail on coordinate quality
+% belongs here vs. in Limitations in Discussion.
+These patterns are therefore consistent with
+a combination of ancestry, topographic complexity,
+and spatial sampling limitations
+rather than a simple, systematic failure of the model.
+Increased sampling across topographically complex regions
+and across the coastal--interior transition zone
+would provide a useful future test of whether
+these Cascade-crest anomalies persist,
+are associated with interior-variety introgression,
+or reflect insufficient local sampling.
+
+These results demonstrate that Ecolocator
+can predict the climate of origin of individual genotypes
+with accuracy that is both statistically meaningful
+and relevant for seed transfer management.
+They further illustrate the value of seed zone benchmarking
+as a biologically grounded validation framework:
+a prediction that falls within a seed zone climate envelope
+is not merely close to the true value,
+it is close enough that a manager
+would consider it an acceptable transfer decision.
+
+% NOTE FOR DISCUSSION: Rich raised several points about how Douglas-fir
+% biology relates to the assumptions of the SLiM simulations.
+% Douglas-fir may be well represented by low dispersal, strong selection,
+% and a polygenic adaptive architecture with many dispersed loci rather
+% than a few genes of major effect. This aligns most closely with our
+% simulation scenarios involving restricted dispersal and stronger local
+% adaptation.
+% NOTE FOR DISCUSSION: Rich also noted that Douglas-fir pollen and seed
+% dispersal are asymmetric and biologically distinct. Gene flow occurs
+% through both pollen movement during mating and seed movement during
+% progeny dispersal, with most pollen and seeds moving short distances.
+% In reality, nearby pollen donors are more likely than distant donors,
+% and paternity is unlikely to be uniform across a local pixel.
+% NOTE FOR DISCUSSION: Rich emphasized that Douglas-fir regeneration may
+% involve strong recruitment bottlenecks. Many offspring die under the
+% maternal canopy, and replacement may occur mainly after disturbance
+% such as fire, disease, or windthrow. This could make net migration
+% smaller than a simple dispersal kernel might imply.
+% NOTE FOR DISCUSSION: Consider explicitly distinguishing what the SLiM
+% simulations are meant to test from what the empirical Douglas-fir case
+% study demonstrates. The simulations test general conditions under
+% which Ecolocator succeeds, whereas Douglas-fir provides a biologically
+% realistic system where low dispersal, strong selection, and polygenic
+% adaptation are plausible.
+% NOTE FOR DISCUSSION/FUTURE WORK: Hebo, Oregon may be a strong applied
+% example. The area burned in the 1850s, remained poorly forested
+% decades later, and was later replanted by the early USFS using many
+% off-site or unknown seed sources. This creates a 100-year-old mixture
+% of potentially well-adapted and maladapted trees that could be
+% evaluated with Ecolocator.
+% NOTE FOR DISCUSSION/FUTURE WORK: The Hebo example could be used to
+% motivate Ecolocator as a tool for reconstructing seed-source history
+% or identifying climate-of-origin mismatches in legacy reforestation
+% stands, but this should probably be included only after the field trip,
+% photos, or historical documentation are incorporated.
 
 
 
