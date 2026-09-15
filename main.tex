@@ -77,37 +77,29 @@ and climate of origin from genotypes}
 Climate change is increasingly disrupting the relationship between 
 locally adapted populations and the environments in which they evolved, 
 creating an urgent need for tools that connect genomic variation to climate. 
-For individuals from locally adapted populations, 
-predicting the climate to which their genotypes are best matched provides a 
-reference for evaluating suitability under present and future conditions.
 Common-garden and provenance trials remain the gold standard 
 for characterizing local adaptation, 
 but their time and resource requirements limit how broadly they can be applied. 
-Genomic approaches provide a complementary path, 
-with genotype--environment association (GEA) methods identifying environmentally 
-associated loci and 
-machine-learning models demonstrating that geographic origin can be predicted 
-directly from genotypes. 
+Genomic approaches provide a complementary path.
+Genotype--environment association (GEA) methods identify environmentally associated loci.
+Machine-learning models have also shown that geographic origin can be predicted
+directly from genotypes.
 Here we introduce \ecolocator, 
-a supervised neural network that jointly predicts geographic location 
+a supervised deep neural network that jointly predicts geographic location 
 and climate of origin from genotypes. 
-In both spatially explicit (non-Wright--Fisher) and deme-based (Wright--Fisher) simulations,
-\ecolocator accurately recovered geographic location and environment of origin from genotypes,
-and SHAP-based feature attribution identified adaptive loci more reliably than benchmark GEA methods.
-Applied to coastal \dfir (\textit{Pseudotsuga menziesii var. menziesii}),
-\ecolocator predicted geographic origin ($R^2=0.75$--$0.83$) and climate of origin
+Through extensive simulations we demonstrate that
+\ecolocator accurately recovers geographic location and environment of origin from genotype data,
+and, with SHAP-based feature attribution, identifies adaptive loci more reliably than benchmark GEA methods.
+We apply our method to coastal \dfir (\textit{Pseudotsuga menziesii} var. \textit{menziesii}),
+where \ecolocator predicts geographic origin ($R^2=0.75$--$0.83$) and climate of origin
 ($R^2=0.52$--$0.72$) under leave-one-out cross-validation.
-Notably, climate predicted directly from genotypes outperformed climate inferred by first
+Notably, we find that climate predicted directly from genotypes outperforms climate inferred by first
 predicting geographic origin, showing that \ecolocator captures genotype--climate signal
 that cannot be recovered from geography alone.
-These prediction errors fell within the tolerances used in existing seed-transfer guidelines,
-demonstrating that \ecolocator's predictions are precise enough for practical use, an approach
+Our prediction errors fall within the tolerances used in existing seed-transfer guidelines,
+demonstrating that \ecolocator's predictions are ready for practical application, and our approach is
 readily extendable to other species and conservation contexts.
-Available through a Python API and command-line interface,
-\ecolocator is open-source software that recovers spatial and
-climate-associated genomic signals and translates them into interpretable
-information for studying and managing populations
-under rapid environmental change.
+
 
 
 
