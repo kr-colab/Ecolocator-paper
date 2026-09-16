@@ -931,8 +931,8 @@ Within this marker set, missing genotype rates ranged from approximately
 imputation procedure described above.
 The \dfir genome is large and incompletely
 assembled ($\sim$16 Gb; \citealp{neale_douglas-fir_2017}),
-so genomic positions of array SNPs are unknown,
-precluding chromosome- or window-level analyses.
+currently being established by re-sequencing and re-assembly (Amanda de la Torre, pers. comm.). 
+Given this uncertainty, chromosome- or window-level analyses are precluded.
 \dfir exhibits low self-fertility and
 seeds derived from maternal parents are typically pollinated by multiple nearby
 pollen donors. While the pollen pool is heterogeneous, pollen and seed movement
@@ -1000,7 +1000,7 @@ they play no role in prediction.
 \paragraph{Functional annotation.}
 To characterize the potential biological functions represented
 among high-attribution loci, SNP identifiers were used to retrieve their source
-cDNA sequences. Available sequence annotations included best protein matches
+cDNA sequences \citep{howe_axiom_2020}. Available sequence annotations included best protein matches
 to \textit{Arabidopsis thaliana} and \textit{Populus trichocarpa},
 along with Mercator gene descriptions and PANTHER functional classes and family
 identifiers. We used these annotations descriptively to identify recurring biological
@@ -1023,12 +1023,13 @@ defined to restrict movement and minimize maladaptive responses to winter
 cold temperatures. `Second-generation' zones \citep{randall_forest_1996, randall_washington_2002}
 were subsequently developed after common garden experiments revealed that
 \dfir populations show broader climate tolerance than is reflected in first-generation zones.
-We compiled spatial layers for first-generation Oregon and Washington seed zones,
-along with climate summaries for seed zones divided into 1000 ft elevation bands,
-instead of the original 500-foot elevation bands \citep{shalev_zone_2026}.
-This allows us to evaluate results in the context of first-generation seed
-zone boundaries (which are widely used in forest management), while allowing for comparisons to climate
-transfers that are closer to the experimentally-supported updated second-generation zones.
+To represent seed zone climate factors (MCMT, MSP, SHM), we used compiled climate factor summaries for 
+first-generation Oregon and Washington seed zones \citep{shalev_zone_2026}.
+For our analysis, we used 1000-foot elevation band summaries instead of the original 
+500-foot summaries; this allows us to evaluate results in the spatial context of first-generation 
+zone boundaries (which are widely used in forest management), 
+while allowing comparisons to the broader climate 
+transfers reflected in experimentally-supported second-generation zones.
 For each individual tree, we compared \ecolocator climate predictions to known seed zone climates
 using two approaches:
 (a) a ``fixed-zone'' approach where map-based seed zones were treated as fixed constraints; and
@@ -1497,7 +1498,7 @@ These values are all larger than those estimated using ClimateNA predictions fro
 
 \begin{table}[ht]
   \centering
-  \caption{Comparison of \ecolocator and Location+ClimateNA predictions across climate variables using the fixed-zone approach.}
+  \caption{Comparison of \ecolocator and Location+ClimateNA predictions across climate variables using the fixed-boundary seed zones.}
   \label{tab:table1}
   \begin{tabular}{lcccc}
   \hline
@@ -1525,7 +1526,7 @@ geographic predictions (\Cref{tab:table2}).
 
 \begin{table}[ht]
   \centering
-  \caption{Comparison of \ecolocator and Location+ClimateNA predictions across climate variables using the focal point approach.}
+  \caption{Comparison of \ecolocator and Location+ClimateNA predictions across climate variables using the focal point seed zones.}
   \label{tab:table2}
   \begin{tabular}{lcccc}
   \hline
@@ -2157,9 +2158,13 @@ over single-task or univariate alternatives.
 
 \section{Acknowledgments}
 We thank Peter Ralph and \'Angel Rivera-Col\'on for their helpful comments on the manuscript,
-Amanda de la Torre and her lab for providing the genomic positions for the \dfir{} data,
+Amanda de la Torre and Athena Allen (Northern Arizona University) for mapping Axiom SNP markers 
+to a new unpublished \dfir{} genome (version 5.29), Glenn Howe (Oregon State University) for providing 
+original transcript sequences used in Axiom SNP array design (as well as 500-foot interval seed zone 
+climate summaries for Oregon and Washington),
 and all members of the Kern-Ralph colab who provided feedback and support throughout this project.
-This work was supported by NIH grants R35GM148253 and R01HG010774 to ADK.
+This work was supported by NIH grants R35GM148253 and R01HG010774 to ADK and 
+USDA Forest Service Award RDBIL-ERR16 to RCC.
 
 
 \printbibliography
