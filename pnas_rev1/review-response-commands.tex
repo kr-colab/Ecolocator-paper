@@ -1,0 +1,80 @@
+% Macros for reviewer responses and back-links from the response document
+% to manuscript line numbers. Pattern adapted from the mkado / popgensbi
+% manuscripts.
+%
+% Loaded only in revision mode (see the \revisionmode block in main.tex).
+% Expects the lineno package to be loaded by the calling document and
+% \linenumbers to be active in the manuscript body.
+
+% Reviewer / point counters
+\newcommand{\thereviewer}{}
+\newcounter{point}
+\setcounter{point}{0}
+
+% Start a new reviewer block. Argument is the reviewer label
+% (e.g. \reviewersection{1} or \reviewersection{AE}).
+\newcommand{\reviewersection}[1]{%
+  \renewcommand{\thereviewer}{#1}%
+  \setcounter{point}{0}%
+  \section*{Reviewer \thereviewer:}%
+}
+
+% A single review point. Argument is an optional name (often empty).
+% Pattern from
+% http://tex.stackexchange.com/questions/2317/latex-style-or-macro-for-detailed-response-to-referee-report
+\newenvironment{point}[1]
+  {\color{gray}\refstepcounter{point}\bigskip\hrule\medskip\noindent
+   \slshape{\fontseries{b}\selectfont (\thereviewer.\thepoint) #1}}
+  {}
+
+\newcommand{\reply}{\normalfont\medskip\noindent\textbf{Reply}:\ }
+
+% \revpoint{R}{P} marks a manuscript line that addresses reviewer R, point P.
+% Use this in the manuscript wherever you make a change in response to a
+% reviewer point so the response document can back-link to it.
+\newcommand{\revpoint}[2]{\hypertarget{llineno:rev#1:#2}{\linelabel{rr:rev#1:#2}}}
+
+% \revreffull{R}{P} renders a (page, line) reference to such a target.
+\newcommand{\revreffull}[2]{{(p.\ \hyperlink{llineno:rev#1:#2}{\pageref{rr:rev#1:#2}, l.\ \lineref{rr:rev#1:#2}})}}
+
+% \revref expands to the page/line reference for the current reviewer/point
+% inside a {point} environment.
+\newcommand{\revref}{\revreffull{\thereviewer}{\thepoint}\xspace}
+
+% Named back-links: place \llabel{name} in the manuscript, refer to it
+% from anywhere with \llname{name}.
+\newcommand{\llabel}[1]{\hypertarget{ll:#1}{\linelabel{#1}}}
+\newcommand{\llname}[1]{{(p.\ \hyperlink{ll:#1}{\pageref{#1}, l.\ \lineref{#1}})}}
+
+% Italics-quoted block (used to set off the verbatim reviewer text).
+\newenvironment{itquote}
+  {\begin{quote}\color{gray}\itshape}
+  {\end{quote}}
+
+% Convenience macros
+\newcommand{\rollover}{\reply{The reviewer makes an excellent point that we have missed out entirely. We have made all the changes suggested, down to the minutiae \revref.}}
+\newcommand{\playdead}{\reply{The reviewer makes an excellent point. We have made an utterly trivial change \revref{}that we think deals entirely with the concern raised.}}
+
+% lineno + amsmath fix: lineno doesn't number lines inside align/equation
+% environments by default. Patch from
+% http://tex.stackexchange.com/questions/43648
+\ifcsname patchAmsMathEnvironmentForLineno\endcsname
+\else
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+  \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+  \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+  \renewenvironment{#1}%
+    {\linenomath\csname old#1\endcsname}%
+    {\csname oldend#1\endcsname\endlinenomath}}
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+  \patchAmsMathEnvironmentForLineno{#1}%
+  \patchAmsMathEnvironmentForLineno{#1*}}
+\AtBeginDocument{%
+  \patchBothAmsMathEnvironmentsForLineno{equation}%
+  \patchBothAmsMathEnvironmentsForLineno{align}%
+  \patchBothAmsMathEnvironmentsForLineno{flalign}%
+  \patchBothAmsMathEnvironmentsForLineno{alignat}%
+  \patchBothAmsMathEnvironmentsForLineno{gather}%
+  \patchBothAmsMathEnvironmentsForLineno{multline}%
+}
+\fi

@@ -20,7 +20,6 @@
 \usepackage{xcolor}
 \usepackage{multirow}
 \usepackage[normalem]{ulem}
-\linenumbers
 
 %%%%%% Running header %%%%%%
 \pagestyle{fancy}
@@ -41,6 +40,23 @@
 }
 
 \newcommand{\sbt}[1]{\textcolor{red}{\textbf{SBT: #1}}}
+
+%%%%%% Revision-mode infrastructure %%%%%%
+% Normal builds (`make`) leave \revisionmode undefined: the \revpoint /
+% \revref / \llabel / \llname tags in the text expand to nothing.
+% The revision build (`make revision`) compiles this file with
+%   pdflatex -jobname=main_revision "\def\revisionmode{}\input{main}"
+% which turns on line numbers and appends the point-by-point response
+% document (pnas_rev1/review-responses.tex) after the supplement.
+\ifdefined\revisionmode
+  \input{pnas_rev1/review-response-commands}
+\else
+  \providecommand{\revpoint}[2]{}%
+  \providecommand{\revref}{}%
+  \providecommand{\revreffull}[2]{}%
+  \providecommand{\llabel}[1]{}%
+  \providecommand{\llname}[1]{}%
+\fi
 
 
 %%%%%% Bibliography %%%%%%
@@ -70,6 +86,9 @@ natbib=true]{biblatex}
 \begin{document}
 
 \maketitle
+
+% Line numbers in the manuscript body for reviewer reference (revision only).
+\ifdefined\revisionmode\linenumbers\fi
 
 %%%%%% Abstract %%%%%%
 \begin{abstract}
@@ -2527,5 +2546,28 @@ USDA Forest Service Award RDBIL-ERR16 to RCC.
   \end{tabular}
 \end{table}
 
+% === Review Responses (extracted to a separate PDF by the Makefile) ===
+% Revision build only. Records the absolute page number where the
+% responses begin into review-responses-pagenum.txt so the Makefile can
+% split main_revision.pdf into the manuscript and the response document.
+\ifdefined\revisionmode
+  \clearpage
+  \newwrite\pageinfo
+  \immediate\openout\pageinfo=review-responses-pagenum.txt
+  \immediate\write\pageinfo{\thepage}
+  \immediate\closeout\pageinfo
+  \setcounter{page}{1}
+  \label{review-responses-start}
+  \nolinenumbers
+  \pagestyle{plain}
+  \fancyhead[L]{}
+  \fancyhead[R]{}
+  \begin{center}
+  {\LARGE \textbf{Response to Reviewers}}\\[1em]
+  {\large This must be the place: deep learning local adaptation}
+  \end{center}
+  \vskip 2em
+  \input{pnas_rev1/review-responses}
+\fi
 
 \end{document}

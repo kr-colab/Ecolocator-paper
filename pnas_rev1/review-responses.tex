@@ -1,0 +1,357 @@
+% Cover letter and point-by-point reviewer responses.
+% Reviewer text is verbatim from pnas_decision1.txt; \reply{...} blocks
+% are TODO placeholders to be filled in during the revision.
+% Wherever a change is made in the manuscript in response to a point,
+% mark the manuscript line with \revpoint{R}{P} and cite it here with
+% \revref (inside the matching {point}) or \revreffull{R}{P}.
+% For a line that several replies cite, put \llabel{name} in the
+% manuscript and cite it with \llname{name}.
+%
+% Reviewer labels used for \revpoint: E (editor), 1, 2.
+
+\begin{minipage}[b]{2.5in}
+  Resubmission Cover Letter \\
+  {\it PNAS} \\
+  Manuscript 2026-35068
+\end{minipage}
+\hfill
+\begin{minipage}[b]{3.0in}
+  \raggedleft
+  Jordan Rodriguez (on behalf of all authors) \\
+  \today
+\end{minipage}
+
+\vskip 2em
+
+\noindent
+{\bf Dear Editor,}
+
+\vskip 1em
+
+TODO
+
+\vskip 2em
+
+\noindent\hspace{4em}
+\begin{minipage}{4.5in}
+\noindent
+{\bf Sincerely,}
+
+\vskip 2em
+
+{\bf
+  Jordan Rodriguez (on behalf of all authors)
+}\\
+\end{minipage}
+
+\vskip 4em
+
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Editor's comments. Set up by hand rather than with \reviewersection so
+% the heading doesn't read "Reviewer E"; points are tagged \revpoint{E}{P}.
+\renewcommand{\thereviewer}{E}
+\setcounter{point}{0}
+\section*{Editor:}
+
+\begin{itquote}
+Both viewers have important suggestions for improvement.
+\end{itquote}
+
+\reply{TODO}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\reviewersection{1}
+
+\begin{itquote}
+Rodrigues et al present a novel machine learning method for analysing population genomic data to characterise the genetic architechture and spatial structure of local adaptation. The method constructively builds on the group's previous work. I don't usually sign reviews, but because I led development of the WZA method and other papers I mention in my review I think that it makes sense that I disclose that my name is Tom Booker. The authors are welcome to reach out to me to discuss the specifics of my review if it would be helpful (my email is thomas.booker@ubc.ca).
+\end{itquote}
+
+\reply{TODO}
+
+% Reviewer 1 point #1
+\begin{point}{} % overall: GEA comparison, genomic offset, simulation parameters, Douglas-fir context
+Overall I liked the paper and think it has the potential to be a major contribution, but my sense is that it straddles a line between two conceptual goals. The first goal is to identify the genetic basis of local adaptation. The second is to determine the climate of origin of individuals - a clear extension of that would be to figure out how maladapted a population will become under a given pattern of environmental change. However, I don't think that the current version of the paper goes far enough on either of those. To make the method more compelling as a GEA approach - EcoLocater should be more fully compared with widely used GEA methods (LFMM is particularly widely used). The WZA is obviously fantastic, but it was designed for the analysis of allele frequqencies (e.g. from pooled sequencing), while the current method analyses genotypes. For climates of origin, the method proposed is akin to genomic offset analyses, but isn't really compared to them. Maybe the authors see this differently, but I think a really clear summary of their reasoning should be included in the paper at the very least. Ideally, the authors would compare their method with offset analyses (e.g. gradient forests) to show that it provides additional power, greater interpretability etc. Furthermore, I think to make the method more broadly impactful the parameters used in the simulations should be more fully justified and put into the context of empirical and theoretical population genetics of local adaptation. For example, what is the Fst observed across simulated populations? How do the functional mutation rates correspond to different expected distributions of effect size? Finally, the empirical analysis of Douglas-fir should be put into the context of previous work and could could be expanded on.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #2
+\begin{point}{} % what counts as an adaptive allele; top 1% of SHAP
+What is an adaptive allele in your simulation model? Since you're modelling local adaptation via stabilising selection, an allele having an effect size is not the same as it being locally adaptive. To be locally adaptive an allele should increase its carriers' fitness on average. For that reason, I think that the way the authors have analysed their data may undersell the power of the method. Figure 3 shows the SHAP values for all non-neutral alleles relative to explicitly neutral alleles. However, a brand new mutation that just arose in the previous generation and have not yet been ``tested'' by selection shouldn't be considered locally adaptive. Clumping these functional, but non-adaptive alleles in with the ones that, on average, increase their carriers' fitness would make it seem like the method isn't working as well as it is. In a previous paper, I computed the contribution an allele makes to local adaptation to try and get around this issue (Booker 2024 - Evoluion Letters). I'm suggesting that you adopt that approach or cite that paper, but I do think that you may be underselling your method. Finally, the SHAP scores used here do share an interpretability issue that many other GEA approaches do. There is always going to be a top 1\% of any distribution of summary statistics, so it would be very informative to push the simulations further to have architectures of local adaptation that are not expected to have alleles maintained over the long-term.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #3
+\begin{point}{} % provenance trials, edge populations, phylogeography; cite l. 665-667
+The work from provenance trials could be more fully described and integrated into the paper. The evidence for local adaptation in Douglas-fir is not really described in great detail. I think that a little more description of that would be good. For example, how does survival/fitness decline with climate distance? Does this level of local adaptation correspond to the simulated values? Have previous provenance trials identified seed zones with weaker local adaptation? The transfer functions used in the papers cited in the intro don't seem to estimate that, but I the authors are more familier with that literature than I am! Do any of these coincide with areas of poorer performance of EcoLocater? I noted that a couple of edge populations (seed zones 482, 493, 501, 502, 90, 81) had poorer performance than others. If these populations were genuinely less well adapted, then EcoLocater would obviously work less well. Indeed, population genetic theory predicts that range-edge populations are likely to be more weakly adapted. Could you integrate what is known about the phylogeographic history of Douglas-fir into your interpretation here? Lines 665-667 could use a citation to justify the choices of environments.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #4
+\begin{point}{} % predicting maladaptation; relation to genomic offset
+A natural extension of this method is to predicting maladaptation and I think that the authors should probably tackled head on. I appreciate that the structure of the ML model used here gives a greater level of interpretability to the weights on each SNP, but the overall aim seems similar to the random forest approaches to modelling genomic offset. If the authors disagree with that then I think that they should more clearly describe the differences between their approach and the offset literature. Why not plug in climate change predictions and show how much seed transfer is needed across the range?
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #5
+\begin{point}{} % simulation details; critical mutation rate; small-effect regime
+The simulations were a little under described. I couldn't tell from the Methods section what the range of population sizes of the continuous space simulations were. What was the mutation rate? What was the carrying capacity per unit area? I took a look at the code on the gihub (which is nicely annotated by the way) it seems like it may have been K=100 per unit area. I ran your simulation to see the size and it hovered at around 2500 for the whole population. That's pretty small compared to the discrete ones. I'm not too worried about that contrast, but I do think that the total mutation rate is pretty important. Sakamoto et al (2025 - \url{https://doi.org/10.1093/genetics/iyae165}) showed that for a given pattern of population structure, there is a critical mutation rate above which locally adaptive alleles are not expected to be maintained over long periods of time. My suggestion is to identify that critical mutation rate w.r.t. your simulations and run some simulations in the many alleles of small-effect size range. Basically, how well does EcoLocator work in the case that we know is extremely difficult to characterise with GEA? It is also the case that when selective pressures and geographical signatures are colinear that population structure is difficult to separate from local adaptation. The authors do go into this, if their simulations are restricted to parameter ranges that result in local adaptation by loci that are maintained over the long-term, there are no insights into the small effect range.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #6
+\begin{point}{} % 100th percentile seed-zone range is too generous
+The climate matching for Douglas-fir is clearly really good. This tool seems like it will be really useful for other systems and I'm excited to apply it. However, I think that the use of the 100th percentile range within a seed zone is an overly generous way of quantifying the performance. Did the authors do something like looking at the distribution of distances from the mean or median climatic variable for the seed zones? Some of the 100th percentile ranges shown in Figure 5 are rather wide (I'm looking at seed zone 661 for exaple), making it more likely that EcoLocater matches the climate than others. A measure of distances from the source would get around that more easily - e.g. like Figure S6 but for climate predictions by seed zone. If the method is working as intended, this mismatch seems like it would provide a measure of maladaptation. Comparing these distances to provenance trial work and transfer functions would be really cool.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #7
+\begin{point}{} % previous Douglas-fir GEA (Lind et al. 2024)
+The paper does not go into the previous GEA work on Douglas-fir. Lines 676-678 describe what was done in the paper by Lind et al (2024 - Glob. Change Biol). The paper by Lind et al 2024 applied GEA (using WZA and BayPass) to both coastal and interior Doug-fir then fit offset models and validated them with common garden data (I was on that paper too, but hopefully its relevance is clear). One of the most crucial findings in that project was that when you fit an offset model with putatively adaptive SNPs the predictions you get are as good as if you use randomly selected SNPs and that both genomic methods gave better predictions than raw environmental data. That seems pretty consistent with your results, so that should probably be mentioned. This is somewhat consistent with Lotterhos (2023 - PNAS) where local adaptation arises without any signals that would be detectable via GEA. We wrote a Perspective on several other studies where similar findings were found \url{https://www.journals.uchicago.edu/doi/abs/10.1086/743599} - you don't have to cite that though!
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #8
+\begin{point}{} % spatial autocorrelation of simulated environment maps
+The maps shown in Figure S7 don't look like 0 spatial auto-correlation - though maybe I'm finding patterns where there isn't any. Did you quantify the spatial auto-correlation in these maps (e.g. using Moran's I or something)? E.g. maps 3, 17 and 20 seem to be pretty auto-correlated. In the context of this paper, I think that you could perhaps model negative autocorrelation - ie. a chessboard pattern - as in that cases population structure and environmental variation are truly uncorrelated. You have run lots of replicates for the continuous space models though, so maybe you're integrating over those issues.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #9
+\begin{point}{} % WZA uses allele frequencies; add LFMM2
+I developed the WZA, so I'm a bit compromised, but I do think that the comparisons could be fleshed out more. We designed the WZA to be used with allele frequencies rather than individual genotypes, so I suspect that may contribute a bit to the rather large differences in performance. You don't have to restructure your analyses or anything, but this difference may be worth noting. I do think that a comparison with LFMM2 would be a good addition, given that many people still use that approach a lot.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #10
+\begin{point}{} % correlated climate variables; PCA
+The authors acknowledge that SHM and MSP are correlated, but only in the Discussion. Isn't MCMT also correlated? Did the authods consier doing a PCA (or a similar technique) on the three variables and using the major axes instead of all three variables? I've done such a PCA across the coastal and interior range of Doug-fir and there is really just two major axes of variation - continentality and latitude. In parts of the manuscript there is a tendancy for the authors talk about these variables as if they are independent
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #11
+\begin{point}{} % unpublished reference genome
+The authors use an unpublished reference genome forthe Douglas-fir reference genome (so I had to tick ``no'' on one of the questions). That does make the paper difficult to reproduce, especially as assemblies may change between now and when it's published. I don't think that that's a major issue though - as I would be very surprised if the results were tremendously different on a different reference genome.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #12
+\begin{point}{} % ML jargon; unclear passages l. 584, 695-698
+The results section is rather heavy on ML jargon, this could perhaps be softened to make it more readily understood by non-ML people (like myself!). More generally, there are some areas of the writing that are a little hard to follow. Examples:
+
+Line 584: ``Although effect sizes were modest...'' - what effect sizes are you talking about? SHAP scores, the actual mutational effects?
+
+Line 695-697: ``within seed zone-elevation band 100th percentile range'' What does this mean?
+
+Line 698: ``proportion of matches'' what are matches in this context?
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #13
+\begin{point}{} % Hereford 2009 citation, l. 64
+I'm not sure that the Hereford 2009 reference supports the statement given on line 64
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #14
+\begin{point}{} % polygenic architectures in the Introduction
+The intro doesn't really acknowledge how different genetic architechtures can underly local adaptation depending on genetic architechtures for important traits. Specifically, that highly polygenic architecthrues can lead to very subtle signatures of allele frequency variation that may not be detectable via GEA (i.e. Lotterhos 2023 and Yeaman )
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #15
+\begin{point}{} % l. 58-68 covers only the large-effect regime
+Paragraph from lines 58-68 doesn't really give enough detail about the expected architectures of adaptation - it mostly covers the large effect regime. Alleles of large effect are the ones most likely captured by GEA (and EcoLocater).
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #16
+\begin{point}{} % l. 127 rephrase: there is always a top 1%
+Line 127 - ``which variants contribute most to adaptive differentiation across the landscape'' - As I stated above, there is always going to be a top 1\% of SHAP values. If you applied this method to a species that does not exhibit local adaptation (Western Larch - Larix occidentalis - comes to mind) your method would still have SNPs that contribute most to the predfictions.Maybe rephrase?
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #17
+\begin{point}{} % strength of local adaptation varies across the range
+Local adaptation is talked about fairly loosely with regards to Douglas-fir, but in the simulations you use a very precise definition that allows local adaptation to vary over space. It could be recognised in the intro that the strength of local adaptation may vary across a species' range - i.e. edge effects, for example.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 1 point #18
+\begin{point}{} % l. 719 needs a citation
+Line 719 - this statement should be supported by citation
+\end{point}
+
+\reply{TODO}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\reviewersection{2}
+
+\begin{itquote}
+There are some aspects of the EcoLocator model and the population simulations that I don't feel I have the expertise to fully review. I will suggest potential additional reviewers in comments to the editor.
+\end{itquote}
+
+% Reviewer 2 point #1
+\begin{point}{} % Douglas-fir sample description
+I found the description of the samples used in the Douglas-fir case study inadequate. Were these trees that were part of common garden studies established earlier by St. Clair, Howe and others? Was there one tree genotyped per seed parent location or multiple trees? Was only a subset of the possible trees available genotyped, and how were they selected?
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #2
+\begin{point}{} % avoid 'woodsrun'
+I would avoid the term 'woodsrun' as that is terminology limited to forestry.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #3
+\begin{point}{} % Significance Statement: value is not climate-of-origin prediction
+Significance statement and elsewhere - I don't see the greatest value of this new tool/approach being to predict the climate of origin for genotypes. These types of analyses, including in the Douglas-fir case study here, are most often used with autochthonous wild populations of known origin. There may be cases, such as for some economically important tree species in Europe, where the extent of past human movement of populations is not well understood. But for reforestation and restoration efforts, seedlots are usually accompanied by GPS coordinates for their collection sites. I see greater value generally in the use of this tool to separate genetic signatures of geographic place of origin versus local adaptation to environmental factors. There also may be potential for predicting maladaptation with climate change, although the authors do not demonstrate how this would be done.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #4
+\begin{point}{} % overall; too incremental for PNAS?
+A major challenge in population genomics has been and continues to be the ability to separate selectively neutral genomic signatures of demographic history and geographic location from evidence of local adaptation, as the two are often confounded. This manuscript expands on the well-cited machine learning model Locator (Battey et al. 2020), which predicts location of origin of samples based on genomic data, to include prediction of the environmental conditions that genotypes are adapted to. The expansion of Locator to EcoLocator can be seen by comparing Figure 1 to Figure 1 in Battey et al. 2020, both of which describe model architecture. The authors use both simulation modelling and a case study with Douglas-fir data to test the ability of EcoLocator to separate geographic origin from local adaptation. It is an interesting and novel way to tackle this challenge, and has considerable potential in my opinion. The manuscript is generally well written, figures are illustrative and explanatory, and this approach has considerable potential. However, there are holes that need to be filled before this will be suitable for PNAS. I am also on the fence about whether the expansion of Locator to EcoLocator is suitable for PNAS or is too incremental.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #5
+\begin{point}{} % simulated architectures not polygenic enough
+The genetic architectures tested in the simulation model are limited. Many studies have shown that local adaptation to climate in conifers is highly polygenic, but none of the GAs tested adequately represent this degree of polygenicity. It is surprising, however, that the three GA models tested did not differ much in the results.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #6
+\begin{point}{} % sampling details; choice of covariates is circular
+Douglas-fir case study: The sampling is illustrated in the map in Figure 5, but it isn't clear how many trees were sampled from each location (a pair? L. 467?), and if these trees were from an existing experiment, e.g., the Seed Source Movement Study established by St. Clair or if seed was used as the source of DNA. The three environmental covariates were chosen based on common garden experiments with this species. This seems a missed opportunity to test for the most explanatory climate variables, and also seems a bit circular since the authors argue that this approach will be valuable when common gardens are lacking. It would be more of a test of EcoLocator to assess what climate variables have the strongest support in terms of relationships with SNP frequencies, and then to compare the importance of climate variables with those found as associated with locally adaptive traits in common gardens.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #7
+\begin{point}{} % compare with Lind et al. 2024 Gradient Forests
+Comparing Ecolocator to other GEA Methods: I'm surprised that results are not compared with Lind et al. 2024 Global Change Biology as it uses Gradient Forests to predict maladaptation in a set of Douglas-fir populations that overlap considerably with the current study.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #8
+\begin{point}{} % management section is weak; maladaptation not demonstrated
+Implications for Douglas-fir Management and Forestry: This section is weak. I don't see the greatest value of this new tool/approach being to predict the climate of origin for genotypes. These types of analyses, including in the Douglas-fir case study here, are most often used with autochthonous wild populations of known origin. There may be cases, such as for some economically important forest or agricultural species in Europe, where the extent of past human movement of populations is not well understood, or for applications around disease origin or the source of species introductions. This also could be useful for detecting illegal trade in plant or animal parts (e.g.,Hessenauer et al. 2026 Evol Appl). But for reforestation and restoration efforts, seedlots are usually accompanied by GPS coordinates for their collection sites. I see greater value generally in the use of this tool to separate genetic signatures of geographic place of origin versus local adaptation to environmental factors, and I wonder if it could be used to identify the environmental factors driving local adaptation that could be used to design strategies for assisted gene flow (note that the current manuscript uses climate variables that were previously identified in a seedling common garden study). The authors suggest EcoLocator could be used to predict maladaptation of populations, but do not demonstrate how that would be done.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #9
+\begin{point}{} % Fig. 5d,e outliers
+In Figure 5, panels d and to a lesser extent e, three outliers appear to be driving the relationship between predicted and true. What are the R2 values without these three points, and why are these points such outliers climatically?
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #10
+\begin{point}{} % l. 323 British Columbia climate map source
+l. 323 - What is the British Columbia map of climatic variation? Is it ClimateNA? ClimateBC? Reference?
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #11
+\begin{point}{} % l. 327-330 unclear
+L 327-330 - This is unclear to me. Do you mean that some environments favor a set of 12 alleles across all loci, and other environments favor the alternate alleles at these loci? So it's just bimodal?
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #12
+\begin{point}{} % l. 455 1971-2000
+L 455 - should be 1971-2000, not 1970-2000.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #13
+\begin{point}{} % l. 506-508 first-generation vs original
+L. 506-508 - ``For our analysis, we used 1000-foot elevation band summaries instead of the original 500-foot summaries; this allows us to evaluate results in the spatial context of first-generation zone boundaries.''. This seems like a contradiction, unless ``first generation'' is not the same as ``original''.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #14
+\begin{point}{} % l. 745 are -> were
+L 745 ``Axiom array probes are designed from cDNA sequence'' - not always. Change ``are'' to ``were'' since it applies to this probe set but not universally.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #15
+\begin{point}{} % l. 819 Aitken and Whitlock citation
+L. 819 - this is an odd place to cite Aitken and Whitlock 2013. The Lind et al. paper or one of Brad St. Clair's genecology studies of Douglas-fir may be more appropriate?
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #16
+\begin{point}{} % l. 831 add 'putative'
+L 831 - add ``putative'' to non-neutral variants here and elsewhere, consistent with the important caveat stated on l. 885-887.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #17
+\begin{point}{} % l. 840 Lotterhos simulations
+L. 840 - Lotterhos has also done additional simulation modelling showing how only a small subset of alleles involved in local adaptation will have GEAs.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #18
+\begin{point}{} % l. 880-885 spatially autocorrelated demography and environment
+L. 880-885 - Given this caveat, why not test some cases with spatial autocorrelation between environment and demographic structure as that is what we usually are facing,
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #19
+\begin{point}{} % l. 959-961 plus trees
+959-961 ``The Douglas-fir individuals used here were designated as `plus' trees, meaning they were identified through provenance trials or field observations as being particularly well-adapted to their local environments.'' - Plus-trees are usually identified in natural stands as individulas with good phenotypic characteristics, not in provenance trials. The individuals genotyped were the offspring of trees from natural stands, but no reference is made to the seed parents being ``plus trees'' in the methods.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #20
+\begin{point}{} % l. 1027 future directions: reanalyze existing datasets
+L. 1027 - Future directions - Testing existing tree (or other) population genomic datasets with EcoLocator that have already been analysed using LFMM, BayEnv, GradientForests, or other approaches should be included here to see if the results differ.
+\end{point}
+
+\reply{TODO}
+
+% Reviewer 2 point #21
+\begin{point}{} % l. 1041-1042 emphasize more
+L. 1041-1042 - Yes! This should be emphasized more.
+\end{point}
+
+\reply{TODO}
