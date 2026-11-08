@@ -54,3 +54,13 @@ main.pdf
 
 # Reference copy of the software package (not part of the manuscript)
 ecolocator-ref/
+
+# Revision PDFs and generated diff artifacts
+main_revision.pdf
+main_revision_only.pdf
+review-responses.pdf
+review-diff.pdf
+review-responses-pagenum.txt
+review-diff.tex
+main-for-diff.tex
+.diff-orig/
