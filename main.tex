@@ -315,9 +315,11 @@ when allele frequencies covary with climate.
 We pair the model with a feature attribution method,
 SHapley Additive exPlanations
 (\texttt{SHAP}) \citep{lundberg_shap_2017},
-to see which input SNPs each prediction depends on,
-and so which variants contribute most
-to adaptive differentiation across the landscape.
+to see which input SNPs each prediction depends on.
+Because attribution ranks SNPs relative to one another,
+some SNPs will always rank highest;
+we therefore treat high-attribution SNPs as candidate loci
+for adaptive differentiation rather than as evidence of it\revpoint{1}{16}.
 We test \ecolocator on simulations to find out
 where it works well and where it does not,
 then apply it to an empirical dataset of coastal \dfir
