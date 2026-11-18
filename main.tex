@@ -707,9 +707,17 @@ $m=0.0375$ per generation in each cardinal direction
 migrant sources), producing a pattern of isolation by distance
 and spatial genetic structure across the landscape.
 Environmental heterogeneity was defined
-using the British Columbia (BC) map of climatic variation,
-which assigns each deme a local phenotypic optimum
-based on discretized environmental values.
+using the British Columbia (BC) map of \citet{booker_wza_2024}\revpoint{2}{10},
+which is based on degree-days below 0\textdegree{}C (DD0),
+a climate variable linked to cold adaptation in conifers
+\citep{yeaman_convergent_2016}.
+To construct it, \citet{booker_wza_2024} averaged DD0 from ClimateBC
+\citep{wang_locally_2016} within each cell of a $14 \times 14$ grid
+over southern British Columbia, one cell per deme,
+and expressed each cell mean as a $Z$-score rounded up to the nearest third
+of a standard deviation.
+Each deme's local phenotypic optimum is this value in units of thirds,
+an integer between $-7$ and $7$.
 In contrast to our main simulations,
 where a continuous phenotype is pulled toward a local optimum 
 that varies across the landscape and fitness declines with deviation 
