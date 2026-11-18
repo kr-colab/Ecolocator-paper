@@ -724,21 +724,26 @@ that varies across the landscape and fitness declines with deviation
 from that optimum in either direction,
 these Wright--Fisher simulations implement directional selection
 at a small number of discrete loci:
-at each locus, one allele is simply favored over the other 
-depending on the local environment, 
+at each locus, which allele is favored, and how strongly,
+depends on the local environment, 
 and fitness increases monotonically with the number of copies carried, 
 with no penalty for carrying ``too many.''
 Specifically, 12 biallelic loci distributed across the genome
-experience genic selection,
-in which each copy of the derived allele 
-multiplies fitness by $(1 + s\theta)$, 
-where $\theta$ is the local phenotypic optimum assigned to that
-deme and $s$ is a fixed selection coefficient ($s=0.0136$), with
-heterozygotes receiving half this effect.
+experience genic selection:
+in a deme with optimum $\theta$, individuals homozygous for the derived allele
+at a locus have fitness $1 + s\theta$ at that locus
+and heterozygotes have fitness $1 + s\theta/2$,
+where $s$ is a fixed selection coefficient ($s=0.0136$).
 Because $\theta$ is positive in demes where the 
 derived allele is advantageous and negative where it is 
 disadvantageous, selection at each locus consistently 
 favors whichever allele matches the local environment.
+All 12 loci follow the same map, so within a deme they are selected
+in the same direction\revpoint{2}{11};
+selection is nonetheless graded rather than bimodal,
+because $\theta$ ranges from $-7$ to $7$ across demes
+and the strength of selection scales with $|\theta|$
+(selection is absent where $\theta = 0$).
 This formulation produces strong genotype--environment associations
 localized to a relatively small number of genomic regions.
 
