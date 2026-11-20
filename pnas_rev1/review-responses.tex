@@ -165,7 +165,7 @@ Line 698: ``proportion of matches'' what are matches in this context?
 I'm not sure that the Hereford 2009 reference supports the statement given on line 64
 \end{point}
 
-\reply{TODO}
+\reply{We agree. Hereford (2009) quantifies the prevalence and strength of local adaptation rather than its role in maintaining genetic variation. We have replaced it with Hedrick (2006), which reviews the maintenance of polymorphism in heterogeneous environments, and Yeaman \& Jarvis (2006), which shows that spatial heterogeneity and gene flow maintain quantitative genetic variance in lodgepole pine \revref.}
 
 % Reviewer 1 point #14
 \begin{point}{} % polygenic architectures in the Introduction
@@ -186,8 +186,7 @@ Paragraph from lines 58-68 doesn't really give enough detail about the expected 
 Line 127 - ``which variants contribute most to adaptive differentiation across the landscape'' - As I stated above, there is always going to be a top 1\% of SHAP values. If you applied this method to a species that does not exhibit local adaptation (Western Larch - Larix occidentalis - comes to mind) your method would still have SNPs that contribute most to the predfictions.Maybe rephrase?
 \end{point}
 
-\reply{TODO}
-
+\reply{We agree and have rephrased this sentence \revref. It now notes that because attribution scores rank SNPs relative to one another, some SNPs will always rank highest, and that high-attribution SNPs are therefore candidate loci rather than evidence of adaptive differentiation. In a species without local adaptation, we would expect \ecolocator's climate predictions to offer no improvement over geography alone, and it is this comparison, rather than the SHAP ranking, that provides evidence of climate-associated genetic signal beyond geography.}
 % Reviewer 1 point #17
 \begin{point}{} % strength of local adaptation varies across the range
 Local adaptation is talked about fairly loosely with regards to Douglas-fir, but in the simulations you use a very precise definition that allows local adaptation to vary over space. It could be recognised in the intro that the strength of local adaptation may vary across a species' range - i.e. edge effects, for example.
@@ -200,7 +199,7 @@ Local adaptation is talked about fairly loosely with regards to Douglas-fir, but
 Line 719 - this statement should be supported by citation
 \end{point}
 
-\reply{TODO}
+\reply{Thank you for catching this, we have added citations to the Oregon and Washington seed zone guidelines, which define seed zones and elevation bands as the units within which seed transfer is considered acceptable \revref.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \reviewersection{2}
@@ -277,56 +276,57 @@ In Figure 5, panels d and to a lesser extent e, three outliers appear to be driv
 l. 323 - What is the British Columbia map of climatic variation? Is it ClimateNA? ClimateBC? Reference?
 \end{point}
 
-\reply{TODO}
+\reply{Thank you for catching this omission. The BC map is the environmental map constructed by \citet{booker_wza_2024} for their \texttt{WZA} simulation study. It is based on degree-days below 0\textdegree{}C (DD0) from ClimateBC \citep{wang_locally_2016}, averaged within each cell of a $14 \times 14$ grid over southern British Columbia and discretized into phenotypic optima. We now describe how the map was constructed and cite both sources \revref.}
 
 % Reviewer 2 point #11
 \begin{point}{} % l. 327-330 unclear
 L 327-330 - This is unclear to me. Do you mean that some environments favor a set of 12 alleles across all loci, and other environments favor the alternate alleles at these loci? So it's just bimodal?
 \end{point}
 
-\reply{TODO}
+\reply{Thank you, we agree this passage was unclear. You are correct that all 12 loci follow the same environmental map, so within any deme selection acts in the same direction at every locus: the derived allele is favored where the local optimum $\theta$ is positive and disfavored where it is negative. Selection is not bimodal, however. Following \citet{booker_wza_2024}, $\theta$ takes integer values from $-7$ to $7$ across demes, and the strength of selection scales with $|\theta|$ (homozygotes for the derived allele have fitness $1 + s\theta$), so selection is graded across the landscape and absent where $\theta = 0$. We have rewritten this passage to state this explicitly \revref and to give the fitness function precisely.}
 
 % Reviewer 2 point #12
 \begin{point}{} % l. 455 1971-2000
 L 455 - should be 1971-2000, not 1970-2000.
 \end{point}
 
-\reply{TODO}
+\reply{Thank you; corrected to 1971--2000 \revref.}
 
 % Reviewer 2 point #13
 \begin{point}{} % l. 506-508 first-generation vs original
 L. 506-508 - ``For our analysis, we used 1000-foot elevation band summaries instead of the original 500-foot summaries; this allows us to evaluate results in the spatial context of first-generation zone boundaries.''. This seems like a contradiction, unless ``first generation'' is not the same as ``original''.
 \end{point}
 
-\reply{TODO}
+\reply{I agree that the wording was confusing as originally written. ``Original'' referred to the 500-foot elevation bands into which the first-generation seed zones are divided, not to a different set of zones. In our analysis we kept the first-generation geographic zone boundaries, which remain widely used in management, but used climate summaries for 1000-foot rather than 500-foot elevation bands, which better reflect the broader climate transfers supported by second-generation zones. We have rewritten this passage to make this distinction explicit \revref.}
+
 
 % Reviewer 2 point #14
 \begin{point}{} % l. 745 are -> were
 L 745 ``Axiom array probes are designed from cDNA sequence'' - not always. Change ``are'' to ``were'' since it applies to this probe set but not universally.
 \end{point}
 
-\reply{TODO}
+\reply{Agreed; we now write ``the Axiom array probes used here were designed'' to make clear this applies to this probe set \revref.}
 
 % Reviewer 2 point #15
 \begin{point}{} % l. 819 Aitken and Whitlock citation
 L. 819 - this is an odd place to cite Aitken and Whitlock 2013. The Lind et al. paper or one of Brad St. Clair's genecology studies of Douglas-fir may be more appropriate?
 \end{point}
 
-\reply{TODO}
+\reply{We have replaced this citation with \citet{stclair_genecology_2005}, which documents genecological variation in Douglas-fir along climatic gradients in western Oregon and Washington, and \citet{stclair_1912_2020}, which shows long-term effects of climatic transfer distance on growth and survival in provenance tests \revref.}
 
 % Reviewer 2 point #16
 \begin{point}{} % l. 831 add 'putative'
 L 831 - add ``putative'' to non-neutral variants here and elsewhere, consistent with the important caveat stated on l. 885-887.
 \end{point}
 
-\reply{TODO}
+\reply{We agree that this caveat applies to any empirical application, and we have kept the Douglas-fir high-attribution loci framed as ``candidate'' loci throughout. Throughout the manuscript, however, ``non-neutral'' refers only to simulated variants, which are causal by construction (they were assigned nonzero effects on the selected phenotype) rather than inferred from attribution scores. Adding ``putative'' there would therefore be inaccurate, so we instead state this distinction explicitly at the cited line \revref.}
 
 % Reviewer 2 point #17
 \begin{point}{} % l. 840 Lotterhos simulations
 L. 840 - Lotterhos has also done additional simulation modelling showing how only a small subset of alleles involved in local adaptation will have GEAs.
 \end{point}
 
-\reply{TODO}
+\reply{Thank you for this suggestion. We now cite \citet{lotterhos_paradox_2023}, whose simulations show that adaptive trait clines can arise from nonclinal allele frequency patterns at the underlying loci, so that GEA methods often fail to detect many of the causal loci \revref.}
 
 % Reviewer 2 point #18
 \begin{point}{} % l. 880-885 spatially autocorrelated demography and environment
@@ -347,7 +347,7 @@ L. 880-885 - Given this caveat, why not test some cases with spatial autocorrela
 L. 1027 - Future directions - Testing existing tree (or other) population genomic datasets with EcoLocator that have already been analysed using LFMM, BayEnv, GradientForests, or other approaches should be included here to see if the results differ.
 \end{point}
 
-\reply{TODO}
+\reply{We agree that this is a valuable next step and have added it to the Future directions \revref. Reanalyzing published datasets that have already been examined with LFMM, BayEnv, Gradient Forests, or similar approaches would show directly whether \ecolocator's candidate loci and inferred environmental associations differ from those of established methods.}
 
 % Reviewer 2 point #21
 \begin{point}{} % l. 1041-1042 emphasize more

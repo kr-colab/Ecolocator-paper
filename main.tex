@@ -185,7 +185,7 @@ Beyond increasing local fitness,
 local adaptation sustains genetic diversity across heterogeneous landscapes
 by maintaining quantitative genetic variance and, at some loci, multiple adaptive alleles,
 helping populations retain the variation
-on which selection can act as environments change \citep{hereford_quantitative_2009}.
+on which selection can act as environments change \citep{hedrick_genetic_2006, yeaman_regional_2006}\revpoint{1}{13}.
 The classic models of 
 \citet{wright_isolation_1943}, 
 \citet{levene_genetic_1953},
@@ -315,9 +315,11 @@ when allele frequencies covary with climate.
 We pair the model with a feature attribution method,
 SHapley Additive exPlanations
 (\texttt{SHAP}) \citep{lundberg_shap_2017},
-to see which input SNPs each prediction depends on,
-and so which variants contribute most
-to adaptive differentiation across the landscape.
+to see which input SNPs each prediction depends on.
+Because attribution ranks SNPs relative to one another,
+some SNPs will always rank highest;
+we therefore treat high-attribution SNPs as candidate loci
+for adaptive differentiation rather than as evidence of it\revpoint{1}{16}.
 We test \ecolocator on simulations to find out
 where it works well and where it does not,
 then apply it to an empirical dataset of coastal \dfir
@@ -705,30 +707,43 @@ $m=0.0375$ per generation in each cardinal direction
 migrant sources), producing a pattern of isolation by distance
 and spatial genetic structure across the landscape.
 Environmental heterogeneity was defined
-using the British Columbia (BC) map of climatic variation,
-which assigns each deme a local phenotypic optimum
-based on discretized environmental values.
+using the British Columbia (BC) map of \citet{booker_wza_2024}\revpoint{2}{10},
+which is based on degree-days below 0\textdegree{}C (DD0),
+a climate variable linked to cold adaptation in conifers
+\citep{yeaman_convergent_2016}.
+To construct it, \citet{booker_wza_2024} averaged DD0 from ClimateBC
+\citep{wang_locally_2016} within each cell of a $14 \times 14$ grid
+over southern British Columbia, one cell per deme,
+and expressed each cell mean as a $Z$-score rounded up to the nearest third
+of a standard deviation.
+Each deme's local phenotypic optimum is this value in units of thirds,
+an integer between $-7$ and $7$.
 In contrast to our main simulations,
 where a continuous phenotype is pulled toward a local optimum 
 that varies across the landscape and fitness declines with deviation 
 from that optimum in either direction,
 these Wright--Fisher simulations implement directional selection
 at a small number of discrete loci:
-at each locus, one allele is simply favored over the other 
-depending on the local environment, 
+at each locus, which allele is favored, and how strongly,
+depends on the local environment, 
 and fitness increases monotonically with the number of copies carried, 
 with no penalty for carrying ``too many.''
 Specifically, 12 biallelic loci distributed across the genome
-experience genic selection,
-in which each copy of the derived allele 
-multiplies fitness by $(1 + s\theta)$, 
-where $\theta$ is the local phenotypic optimum assigned to that
-deme and $s$ is a fixed selection coefficient ($s=0.0136$), with
-heterozygotes receiving half this effect.
+experience genic selection:
+in a deme with optimum $\theta$, individuals homozygous for the derived allele
+at a locus have fitness $1 + s\theta$ at that locus
+and heterozygotes have fitness $1 + s\theta/2$,
+where $s$ is a fixed selection coefficient ($s=0.0136$).
 Because $\theta$ is positive in demes where the 
 derived allele is advantageous and negative where it is 
 disadvantageous, selection at each locus consistently 
 favors whichever allele matches the local environment.
+All 12 loci follow the same map, so within a deme they are selected
+in the same direction\revpoint{2}{11};
+selection is nonetheless graded rather than bimodal,
+because $\theta$ ranges from $-7$ to $7$ across demes
+and the strength of selection scales with $|\theta|$
+(selection is absent where $\theta = 0$).
 This formulation produces strong genotype--environment associations
 localized to a relatively small number of genomic regions.
 
@@ -974,7 +989,7 @@ seedlings.
 
 \paragraph{Climate variables.}
 To represent source climates,
-we chose 1970--2000 baseline climate normals modeled by
+we chose 1971--2000\revpoint{2}{12} baseline climate normals modeled by
 ClimateNA \citep{mahony_global_2022} using source latitude, longitude, and elevation.
 We focused on three climate variables shown to be significantly
 associated with \dfir growth and local adaptation \citep{stclair_genecology_2005}:
@@ -1057,10 +1072,11 @@ were subsequently developed after common garden experiments revealed that
 \dfir populations show broader climate tolerance than is reflected in first-generation zones.
 To represent seed zone climate factors (MCMT, MSP, SHM), we used compiled climate factor summaries for 
 first-generation Oregon and Washington seed zones \citep{shalev_zone_2026}.
-For our analysis, we used 1000-foot elevation band summaries instead of the original 
-500-foot summaries; this allows us to evaluate results in the spatial context of first-generation 
-zone boundaries (which are widely used in forest management), 
-while allowing comparisons to the broader climate 
+First-generation zones divide each geographic zone into 500-foot elevation bands.
+For our analysis, we kept the first-generation geographic zone boundaries
+(which are widely used in forest management)
+but used climate summaries for 1000-foot rather than 500-foot elevation bands\revpoint{2}{13},
+which allows comparisons to the broader climate
 transfers reflected in experimentally-supported second-generation zones.
 For each individual tree, we compared \ecolocator climate predictions to known seed zone climates
 using two approaches:
@@ -1589,7 +1605,8 @@ as a biologically grounded validation framework:
 predictions that fall within a seed zone climate envelope
 are not just numerically accurate,
 but are close enough that forest managers
-consider it an acceptable transfer source.
+consider it an acceptable transfer source
+\citep{randall_forest_1996, randall_washington_2002}\revpoint{1}{18}.
 
 Although the genotype array used for inference carries no genomic coordinates,
 our alignment to the DFv5.29 draft assembly placed a subset of SNPs
@@ -1627,7 +1644,7 @@ patterns are informative about which loci the model draws on for correlated
 targets, not evidence that those loci are independently causal for both.
 
 Functional annotation of the high-attribution SNPs revealed additional
-differences among prediction targets. Because Axiom array probes are designed
+differences among prediction targets. Because the Axiom array probes used here were designed\revpoint{2}{14}
 from cDNA sequence (see Methods), each genotyped SNP already has a known
 transcript-level origin, so ``loci'' here refers to SNPs anchored within an
 expressed gene's transcript sequence, rather than an anonymous genomic
@@ -1752,7 +1769,7 @@ system where the ground truth is not fully known.
 climate variables in coastal \dfir are consistent with the 
 species' well-documented patterns of local adaptation along steep 
 latitudinal and elevational gradients in western 
-North America \citep{aitken_assisted_2013}. 
+North America \citep{stclair_genecology_2005, stclair_1912_2020}\revpoint{2}{15}. 
 That the model performs well in this system
 despite low population differentiation \citep{krutovsky_estimation_2009}, 
 incomplete genomic resources \citep{neale_douglas-fir_2017}, 
@@ -1773,7 +1790,8 @@ geography-then-ClimateNA lookup in \dfir (see above) already indicates
 that this signal reflects genuine genotype--environment covariance
 rather than geography alone; feature attribution lets us ask which
 loci carry that signal. Our simulation results demonstrate
-that non-neutral variants consistently receive
+that non-neutral variants (the known causal loci in our simulations)\revpoint{2}{16} 
+consistently receive
 higher attribution scores than neutral sites,
 confirming that the model preferentially weights loci
 under selection.
@@ -1802,6 +1820,10 @@ will inevitably involve a balance
 between sensitivity and specificity
 that depends on the unknown strength of selection
 and the genetic architecture of adaptation.
+Simulations of multivariate polygenic adaptation further show that
+adaptive trait clines can arise from nonclinal allele frequency patterns
+at the underlying loci, so that GEA methods often fail
+to detect many of the causal loci \citep{lotterhos_paradox_2023}\revpoint{2}{17}.
 
 The continuous-space simulations therefore represent
 a comparatively diffuse attribution problem,
@@ -1890,7 +1912,7 @@ In nature the two usually covary, and when they do,
 attribution alone cannot tell us whether a high-attribution locus
 reflects environmental selection, demographic structure,
 linkage to a selected locus, or some mix of these
-(we return to this under \hyperref[sec:strengths-limitations]{Strengths and limitations})).
+(we return to this under \hyperref[sec:strengths-limitations]{Strengths and limitations}).
 High-attribution loci should therefore be read as candidate
 genomic regions associated with the predicted gradient,
 not as confirmed targets of adaptation.
@@ -2192,6 +2214,14 @@ would help delineate the conditions
 under which \ecolocator's joint prediction approach
 offers the greatest advantage
 over single-task or univariate alternatives.
+In particular, applying \ecolocator to published population genomic datasets,
+in trees and other taxa, that have already been analyzed with
+LFMM \citep{frichot_lfmm_2013}, BayEnv \citep{coop_using_2010},
+or Gradient Forests \citep{fitzpatrick_gradient_2015}\revpoint{2}{20}
+would show directly whether its candidate loci
+and inferred environmental associations
+agree with or differ from those of established approaches.
+
 
 \section{Acknowledgments}
 We thank Peter Ralph and \'Angel Rivera-Col\'on for their helpful comments on the manuscript,
