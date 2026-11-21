@@ -2624,7 +2624,7 @@ USDA Forest Service Award RDBIL-ERR16 to RCC.
 %%%%%% Supplemental text: run length and steady state %%%%%%
 \subsection*{Run length and steady state}
 
-To choose the length of the simulations,
+To choose how long to run the simulations,
 we ran long simulations and measured when the genealogy
 of the population had coalesced.
 We ran 10 replicates at each of $\sigma_D = 0.1$ and 0.3
@@ -2643,8 +2643,9 @@ After recapitation, and without mutations,
 we also computed the expected neutral diversity
 and the slope of the expected divergence between spatial bins
 on the log of their distance (isolation by distance),
-and the time after which each stayed within three noise units
-of its final level (\Cref{tab:burnin}).
+and the time after which each stayed within three standard deviations
+of its final level, with the standard deviation of its fluctuation
+late in the run (\Cref{tab:burnin}).
 
 The time to coalescence grows about in proportion to the population size:
 on the $10 \times 10$ landscape, with four times as many individuals,
@@ -2652,7 +2653,7 @@ it is about 3.8 times as long.
 Expected neutral diversity reaches its final level
 before the genome has fully coalesced,
 and the slope of isolation by distance much earlier.
-We ran every simulation in this study for 200,000 ticks
+We ran the continuous-space simulations for 200,000 ticks
 on the $5 \times 5$ landscape,
 about 2.5 times the median time to coalescence at $\sigma_D = 0.1$
 and 3 times at $\sigma_D = 0.3$.
