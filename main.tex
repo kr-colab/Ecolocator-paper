@@ -2181,6 +2181,16 @@ does not resolve this fundamental ambiguity;
 high environmental prediction accuracy
 could reflect true adaptive signal, demographic history,
 or both.
+The same confounding limits the location-corrected GEA.\llabel{gradientlimit}
+When the environment changes steadily across space,
+\ecolocator's predicted location also predicts the environment,
+and correcting for it removes most of the adaptive signal
+when dispersal is low:
+on maps where the optimum is a planar gradient,
+97--98\% of \ecolocator's environment prediction goes through
+the predicted location,
+and at $\sigma_D = 0.1$ the corrected GEA has power 0.07,
+against 0.33 for LFMM2 (\Cref{tab:spatial}).
 Third, our simulations use a simplified landscape
 with a single environmental axis
 and a modest genome size.
