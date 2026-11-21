@@ -2685,6 +2685,117 @@ and in all 10 replicates at $\sigma_D = 0.3$.
   \end{tabular}
 \end{table}
 
+%%%%%% Supplemental text: polygenicity across the threshold %%%%%%
+\subsection*{Polygenic architectures across the threshold for stable local adaptation}
+
+\citet{sakamoto_mutation_2024} showed that,
+for a given pattern of migration,
+local adaptation is carried by long-lived loci
+only below a threshold mutation rate of the trait;
+above it, the loci that carry local adaptation turn over.
+In their two-population model the threshold is
+$10^{-3}$ to $10^{-2}$ per trait,
+and it depends mostly on the SD of mutational effects
+in units of the difference between the optima.
+In our simulations the SD of QTL effects is 0.05
+on a range of optima of 2,
+about 0.025 in their units,
+which puts the threshold at about $2$ to $5 \times 10^{-3}$.
+Architecture 1 ($U = 2 \times 10^{-3}$) is close to it.
+
+To go across the threshold,
+we ran a series in which only the size of the mutational target changes.
+QTL mutations arise in one window at the center of the 1~Mb chromosome,
+of 20~kb, 200~kb, 500~kb, or 1~Mb (the whole chromosome),
+at $10^{-8}$ per site per gamete with effects of SD 0.05,
+so that $U = 2 \times 10^{-4}$, $2 \times 10^{-3}$,
+$5 \times 10^{-3}$, and $10^{-2}$.
+All other settings are those of the main simulations,
+with $\sigma_D = 0.3$ and $\sigma_K = 0.5$
+(50 replicates per level; 200,000 ticks).
+Each run also wrote its tree sequence every 2,000 ticks
+from tick 100,000 (50 snapshots).
+
+In each snapshot we computed the contribution of every QTL site $i$
+to local adaptation,
+$c_i = \mathrm{Cov}(g_i, \theta)$ over individuals,
+where $g_i$ is an individual's summed effect at site $i$ (both copies)
+and $\theta$ its local optimum,
+so that $\sum_i c_i = \mathrm{Cov}(z, \theta)$ \citep{booker_structure_2024}.
+The top loci of a snapshot are the fewest sites
+that together carry half of $\sum_i |c_i|$.
+As in \citet{sakamoto_mutation_2024},
+we measured the stability of the architecture by $T^*$:
+the longest run of consecutive snapshots
+in which one site stays among the top loci,
+divided by the number of snapshots
+(1 when one locus stays on top throughout, near 0 when the top loci change at every snapshot).
+We also report the share of $\sum_i |c_i|$ in the last snapshot
+that comes from sites already segregating in the first.
+
+We compared the methods at the level of 10~kb windows,
+where each method scores a window by its strongest SNP.
+The location-corrected GEA regresses each SNP on the environment,
+with a smooth function of \ecolocator's cross-fitted predicted location
+as the covariate for population structure;
+LFMM2 uses $K = 5$ latent factors;
+\ecolocator's attribution is the mean $|\mathrm{SHAP}|$
+of the environment prediction.
+The major QTL are the fewest QTL sites
+that together carry 80\% of $\sum_i |c_i|$ at the end of the run.
+Power is the share of windows with a QTL site
+that hold a hit at Benjamini--Hochberg $q < 0.05$.
+
+The transition lies between $U = 2 \times 10^{-3}$ and $10^{-2}$
+(\Cref{tab:polygenicity}).
+As $U$ increases, the architecture becomes more polygenic
+(the effective number of contributing sites rises from 6.7 to 21.3),
+while local adaptation stays as strong
+(correlation of phenotype and optimum 0.84--0.86 at every level).
+$T^*$ falls from 0.94 to 0.57,
+and at $U = 10^{-2}$ only 6\% of the local adaptation at the end of the run
+comes from sites that segregated 100,000 ticks earlier.
+\ecolocator predicts the environment about equally well at every level
+($R^2$ 0.69--0.71).
+Above the transition, neither GEA finds the loci:
+the power of the location-corrected GEA falls from 0.95 to 0.04,
+and that of LFMM2 from 0.97 to 0.02.
+At $U = 2 \times 10^{-4}$, where one 20~kb window holds all QTL,
+the false-discovery rate of the corrected GEA is 0.71,
+and 49\% of its hits lie more than one window
+from any window with a QTL site.
+Above the transition, \ecolocator's attribution ranks the major QTL
+slightly higher than the GEAs.
+
+\begin{table}[ht]
+  \centering
+  \caption{\textbf{Polygenicity across the threshold for stable local adaptation.}
+  One QTL window of increasing size;
+  $\sigma_D = 0.3$, $\sigma_K = 0.5$, 50 replicates per row (means).
+  QTL sites, segregating QTL sites at the end of the run;
+  $n_{\mathrm{eff}}$, effective number of contributing sites,
+  $(\sum_i |c_i|)^2 / \sum_i c_i^2$;
+  early share, share of the final local adaptation
+  from sites that segregated at tick 100,000;
+  $R^2$, cross-fitted $R^2$ of \ecolocator's environment prediction;
+  power, of the location-corrected GEA at $q < 0.05$ (windows with a QTL site);
+  AUC-PR, area under the precision--recall curve
+  for windows with a major QTL.}
+  \label{tab:polygenicity}
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}lcccccccccc@{}}
+  \hline
+  & & \textbf{QTL} & & & \textbf{Early} & & & \multicolumn{3}{c}{\textbf{AUC-PR, major QTL}} \\
+  \textbf{Target} & $\boldsymbol{U}$ & \textbf{sites} & $\boldsymbol{n_{\mathrm{eff}}}$ & $\boldsymbol{T^*}$ & \textbf{share} & $\boldsymbol{R^2}$ & \textbf{Power} & \textbf{SHAP} & \textbf{Corr.\ GEA} & \textbf{LFMM2} \\
+  \hline
+  20~kb  & $2 \times 10^{-4}$ & 13  & 6.7  & 0.94 & 0.80 & 0.69 & 0.95 & 0.90 & 0.91 & 0.93 \\
+  200~kb & $2 \times 10^{-3}$ & 48  & 9.6  & 0.89 & 0.32 & 0.71 & 0.44 & 0.78 & 0.80 & 0.79 \\
+  500~kb & $5 \times 10^{-3}$ & 107 & 13.8 & 0.78 & 0.14 & 0.71 & 0.16 & 0.68 & 0.63 & 0.62 \\
+  1~Mb   & $10^{-2}$          & 193 & 21.3 & 0.57 & 0.06 & 0.71 & 0.04 & 0.58 & 0.52 & 0.49 \\
+  \hline
+  \end{tabular}
+\end{table}
+
 % === Review Responses (extracted to a separate PDF by the Makefile) ===
 % Revision build only. Records the absolute page number where the
 % responses begin into review-responses-pagenum.txt so the Makefile can
