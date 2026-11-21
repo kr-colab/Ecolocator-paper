@@ -2822,6 +2822,7 @@ We also report the share of $\sum_i |c_i|$ in the last snapshot
 that comes from sites already segregating in the first.
 
 We compared the location-corrected GEA, LFMM2 with $K = 5$,
+\texttt{WZA}, the top-candidate method,
 and \ecolocator's attribution
 as described in the Methods (\Cref{sec:correctedgea} and \Cref{sec:comparison}),
 at the level of 10~kb windows:
@@ -2837,11 +2838,15 @@ while local adaptation stays as strong
 $T^*$ falls from 0.94 to 0.57,
 and at $U = 10^{-2}$ only 6\% of the local adaptation at the end of the run
 comes from sites that segregated 100,000 ticks earlier.
-\ecolocator predicts the environment about equally well at every level
-($R^2$ 0.69--0.71).
+\ecolocator predicts the environment and location about equally well
+at every level
+($R^2$ 0.69--0.71 and 0.91--0.92).
 Above the transition, neither GEA finds the loci:
 the power of the location-corrected GEA falls from 0.95 to 0.04,
 and that of LFMM2 from 0.97 to 0.02.
+\texttt{WZA} and the top-candidate method
+find almost no windows at any level above $U = 2 \times 10^{-4}$
+(power at most 0.06).
 At $U = 2 \times 10^{-4}$, where one 20~kb window holds all QTL,
 the false-discovery rate of the corrected GEA is 0.71,
 and 49\% of its hits lie more than one window
@@ -2854,26 +2859,47 @@ slightly higher than the GEAs.
   \caption{\textbf{Polygenicity across the threshold for stable local adaptation.}
   One QTL window of increasing size;
   $\sigma_D = 0.3$, $\sigma_K = 0.5$, 50 replicates per row (means).
+  (a) Genetic architecture.
   QTL sites, segregating QTL sites at the end of the run;
   $n_{\mathrm{eff}}$, effective number of contributing sites,
   $(\sum_i |c_i|)^2 / \sum_i c_i^2$;
   early share, share of the final local adaptation
-  from sites that segregated at tick 100,000;
-  $R^2$, cross-fitted $R^2$ of \ecolocator's environment prediction;
-  power, of the location-corrected GEA at $q < 0.05$ (windows with a QTL site);
-  AUC-PR, area under the precision--recall curve
-  for windows with a major QTL.}
+  from sites that segregated at tick 100,000.
+  (b) \ecolocator and locus discovery.
+  $R^2$, cross-fitted $R^2$ of \ecolocator's prediction
+  of the environment and of location (mean of the two coordinates);
+  power, at $q < 0.05$ (windows with a QTL site);
+  AUC-PR, for windows with a major QTL;
+  Corr.\ GEA, location-corrected GEA;
+  LFMM2 with $K = 5$;
+  Top-cand., top-candidate method.}
   \label{tab:polygenicity}
+  \small
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{@{}lcccccccccc@{}}
+  \textbf{(a)}\par\smallskip
+  \begin{tabular}{@{}lccccc@{}}
   \hline
-  & & \textbf{QTL} & & & \textbf{Early} & & & \multicolumn{3}{c}{\textbf{AUC-PR, major QTL}} \\
-  \textbf{Target} & $\boldsymbol{U}$ & \textbf{sites} & $\boldsymbol{n_{\mathrm{eff}}}$ & $\boldsymbol{T^*}$ & \textbf{share} & $\boldsymbol{R^2}$ & \textbf{Power} & \textbf{SHAP} & \textbf{Corr.\ GEA} & \textbf{LFMM2} \\
+  \textbf{Target} & $\boldsymbol{U}$ & \textbf{QTL sites} & $\boldsymbol{n_{\mathrm{eff}}}$ & $\boldsymbol{T^*}$ & \textbf{Early share} \\
   \hline
-  20~kb  & $2 \times 10^{-4}$ & 13  & 6.7  & 0.94 & 0.80 & 0.69 & 0.95 & 0.90 & 0.91 & 0.93 \\
-  200~kb & $2 \times 10^{-3}$ & 48  & 9.6  & 0.89 & 0.32 & 0.71 & 0.44 & 0.78 & 0.80 & 0.79 \\
-  500~kb & $5 \times 10^{-3}$ & 107 & 13.8 & 0.78 & 0.14 & 0.71 & 0.16 & 0.68 & 0.63 & 0.62 \\
-  1~Mb   & $10^{-2}$          & 193 & 21.3 & 0.57 & 0.06 & 0.71 & 0.04 & 0.58 & 0.52 & 0.49 \\
+  20~kb  & $2 \times 10^{-4}$ & 13  & 6.7  & 0.94 & 0.80 \\
+  200~kb & $2 \times 10^{-3}$ & 48  & 9.6  & 0.89 & 0.32 \\
+  500~kb & $5 \times 10^{-3}$ & 107 & 13.8 & 0.78 & 0.14 \\
+  1~Mb   & $10^{-2}$          & 193 & 21.3 & 0.57 & 0.06 \\
+  \hline
+  \end{tabular}
+
+  \bigskip
+  \textbf{(b)}\par\smallskip
+  \setlength{\tabcolsep}{3.5pt}
+  \begin{tabular}{@{}lccccccccc@{}}
+  \hline
+  & \multicolumn{2}{c}{$\boldsymbol{R^2}$} & \multicolumn{4}{c}{\textbf{Power}} & \multicolumn{3}{c}{\textbf{AUC-PR, major QTL}} \\
+  $\boldsymbol{U}$ & \textbf{Env.} & \textbf{Loc.} & \textbf{Corr.\ GEA} & \textbf{LFMM2} & \textbf{WZA} & \textbf{Top-cand.} & \textbf{SHAP} & \textbf{Corr.\ GEA} & \textbf{LFMM2} \\
+  \hline
+  $2 \times 10^{-4}$ & 0.69 & 0.92 & 0.95 & 0.97 & 0.04 & 0.66 & 0.90 & 0.91 & 0.93 \\
+  $2 \times 10^{-3}$ & 0.71 & 0.92 & 0.44 & 0.34 & 0.03 & 0.06 & 0.78 & 0.80 & 0.79 \\
+  $5 \times 10^{-3}$ & 0.71 & 0.92 & 0.16 & 0.10 & 0.01 & 0.02 & 0.68 & 0.63 & 0.62 \\
+  $10^{-2}$          & 0.71 & 0.91 & 0.04 & 0.02 & 0.00 & 0.00 & 0.58 & 0.52 & 0.49 \\
   \hline
   \end{tabular}
 \end{table}
