@@ -882,6 +882,99 @@ supervised estimate of significance
 rather than a model-based or permutation-based test.
 
 
+\subsection{Location-corrected GEA}
+\label{sec:correctedgea}
+
+A genotype--environment association (GEA) asks
+whether the genotype at a SNP follows the environment.
+Population structure confounds this question:
+individuals that live near each other share ancestry,
+and they also share an environment,
+so a neutral SNP can follow the environment
+only because of where its carriers live.
+To find loci, we use a GEA that removes this effect
+with the location that \ecolocator predicts
+from each individual's genotypes.
+The test has four steps.
+
+\paragraph{Predicted locations.}
+Each individual gets one predicted location $(\hat{x}_i, \hat{y}_i)$
+from a model that did not see it.
+We split the individuals into five folds,
+and an \ecolocator model fitted to the other four folds
+predicts the individuals of each fold.
+The folds only make sure that no prediction
+comes from a model that saw the individual;
+the steps below use all individuals together.
+
+\paragraph{Spline basis.}
+On each axis we place $k$ knots at even spacing
+between the smallest and the largest predicted coordinate
+of all individuals.
+The knots define $k + 2$ cubic B-splines per axis,
+smooth bumps that cover the range.
+Their tensor product gives $(k + 2)^2$ functions $B_m(\hat{x}, \hat{y})$,
+each a smooth bump over one rectangle of the landscape.
+We evaluate every function at every individual's predicted location,
+which gives one matrix with one row per individual
+and $(k + 2)^2$ columns;
+every SNP uses the same matrix.
+We use $k = 5$ (49 functions);
+with fewer than 10 individuals per function
+we use fewer knots, down to 2 (16 functions).
+
+\paragraph{Regression.}
+For each SNP $j$, we fit by least squares, over all individuals $i$,
+\begin{equation}
+g_{ij} = b_0 + b_j\, e_i
++ \sum_{m} c_{jm}\, B_m(\hat{x}_i, \hat{y}_i) + \varepsilon_{ij},
+\label{eq:correctedgea}
+\end{equation}
+where $g_{ij}$ is the genotype (0, 1, or 2 copies of the allele)
+and $e_i$ the environment of individual $i$.
+The basis is the same for every SNP,
+but each SNP gets its own coefficients $c_{jm}$.
+These coefficients give SNP $j$ its own smooth surface over the landscape:
+the genotype expected from where the individual's genotypes place it,
+that is, the SNP's allele-frequency map.
+The coefficient $b_j$ is the association with the environment
+beyond that surface.
+This is the idea of the correction by principal components in a GWAS,
+with a flexible function of the predicted location
+as the covariates for structure.
+
+\paragraph{Calibration.}
+The statistic of SNP $j$ is $z_j = \hat{b}_j / \mathrm{SE}(\hat{b}_j)$.
+As in LFMM2 \citep{caye_lfmm2_2019},
+we divide all $z_j$ by $\sqrt{\lambda}$,
+where $\lambda = \mathrm{median}(z_j^2) / 0.456$
+is the genomic inflation factor,
+and compute two-sided $p$-values
+and Benjamini--Hochberg $q$-values \citep{benjamini_hochberg_1995}.
+Population structure inflates the statistics of common SNPs
+much more than those of rare SNPs,
+so $\lambda$ must come from the SNPs that we test:
+we test only SNPs with a minor-allele frequency of at least 0.05.
+
+\paragraph{Why the predicted location.}
+The predicted location is what the genotypes say
+about where an individual comes from,
+so it describes population structure, the confounder.
+The true location also sets the environment,
+so a correction by the true location
+would also remove the signal of the environment.
+The predicted location does the same
+when the environment changes steadily across space,
+because it then also predicts the environment
+(\Cref{sec:strengths-limitations}, \Cref{tab:spatial}).
+
+\paragraph{Software.}
+The test is in the \ecolocator package
+(the command \texttt{ecolocator gea}).
+It reads the genotypes, the environmental variables,
+and a table of predicted locations,
+for example the leave-one-out predictions of \texttt{ecolocator loo}.
+
 \subsection{Comparing \ecolocator to other GEA methods}
 
 To benchmark the ability of \ecolocator-derived feature attribution
