@@ -131,20 +131,23 @@ still comes from recapitation.
 \textit{Where our simulations sit relative to the threshold.} In the
 two-population model of Sakamoto et al., the threshold is
 $10^{-3}$--$10^{-2}$ per trait. It depends mostly on the SD of mutational
-effects in units of the difference between the optima. Our SD of 0.05 on a
-range of 2 is about 0.025 in their units, which puts the threshold at
-about $2$--$5\times10^{-3}$. Our main architecture
-($U = 2\times10^{-3}$) is therefore close to, or just below, it.
+effects in units of the difference between the optima. Our SD of 0.05 is
+about 0.025 in their units if we scale it by the full range of optima
+(2), and about 0.12 if we scale it by the mean difference between
+neighboring cells of our maps (0.43). This puts the threshold at about
+$10^{-3}$--$5\times10^{-3}$, and our main architecture
+($U = 2\times10^{-3}$) in this range. The conversion is rough, so we
+located the transition in our own simulations.
 
 To go across the threshold, we ran a new series of simulations. It keeps
 the effect distribution (SD 0.05) and the per-site QTL mutation rate
 ($10^{-8}$) of the main simulations, and increases $U$ only through the
 size of the QTL target: 20~kb, 200~kb, 500~kb, and 1~Mb, so
 $U = 2\times10^{-4}$, $2\times10^{-3}$, $5\times10^{-3}$, and $10^{-2}$ (50
-replicates each). Our model has continuous space, no single locus of large
-effect, and stronger stabilizing selection than theirs. So we found the
-transition in our own runs with their diagnostic: the stability, over
-time, of the loci that carry local adaptation. For this we used each
+replicates each). Our model has continuous space and no single locus of
+large effect, so we found the transition in our own runs with a version of
+their diagnostic: the stability, over time, of the loci that carry local
+adaptation. For this we used each
 allele's contribution to local adaptation, as the reviewer suggests in
 point \textit{1.2} \citep{booker_structure_2024}. From tick
 100,000 to tick 200,000, the longest time that a locus stayed among the
@@ -160,11 +163,12 @@ $10^{-2}$ in our model.
 \item The prediction of the environment does not change across the
   transition: covariate $R^2$ is 0.69--0.71 at every $U$, and location
   $R^2$ 0.91--0.92.
-\item Locus discovery fails above the transition, for every method. At
-  $q < 0.05$, the power of the location-corrected GEA falls from 0.95 to
-  0.44, 0.16, and 0.04, and that of LFMM2 similarly ($K = 5$: from 0.97 to
-  0.02). WZA and the top-candidate method find almost nothing at any $U$
-  above $2\times10^{-4}$.
+\item Locus discovery weakens across the transition for every method. For
+  windows with a major QTL, the power of the location-corrected GEA at
+  $q < 0.05$ is 0.98 and 0.89 below the transition and 0.50 and 0.14
+  above it, and that of LFMM2 ($K = 5$) falls from 0.99 to 0.08. WZA
+  finds few of these windows at any $U$ (power at most 0.14), and the
+  top-candidate method few above $U = 2\times10^{-4}$ (at most 0.25).
 \item The SHAP attribution still ranks the largest contributors to local
   adaptation slightly higher than the GEAs above the transition
   (window-level AUC-PR for major QTL: 0.68 and 0.58 at
@@ -172,7 +176,8 @@ $10^{-2}$ in our model.
   corrected GEA). This shows that the prediction draws on the QTL. We do
   not use the attribution to find loci, because it has no null
   distribution: in new simulations without local adaptation, the largest
-  attribution is still 3.9--5.2 times the median, while the
+  attribution is still 3.9--5.2 times the median, and these ratios overlap
+  with those of the runs with local adaptation, while the
   location-corrected GEA finds a false window in at most 8\% of the
   replicates (\Cref{tab:null}).
 \end{itemize}
