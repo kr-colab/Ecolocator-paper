@@ -2996,6 +2996,80 @@ and its AUC-PR 0.54, against 0.82.
   \end{tabular}
 \end{table}
 
+%%%%%% Supplemental text: simulations without local adaptation %%%%%%
+\subsection*{Simulations without local adaptation}
+
+To see what each method reports when there is no local adaptation,
+we ran the main model without QTL mutations
+and with $\sigma_K = 1000$,
+so that fitness does not depend on the optimum
+and the map of optima does not change the population density.
+The environment keeps the spatial pattern of the paper maps,
+so any association between genotype and environment
+comes from population structure.
+We ran $\sigma_D = 0.1$, 0.3, and 0.5
+(100 replicates each; 200,000 ticks)
+and applied every method as in the main simulations
+(\Cref{sec:comparison}).
+Every hit is false in these runs,
+so we report the share of replicates
+with at least one window hit at $q < 0.05$,
+which is the family-wise error rate,
+and the mean number of such windows per replicate
+(\Cref{tab:null}).
+
+The location-corrected GEA found a false window
+in 0--8\% of the replicates,
+and LFMM2 in 0--1\% ($K = 1$) and 4--5\% ($K = 5$).
+\texttt{WZA} found a false window in 19--23\% of the replicates
+and the top-candidate method in 35--40\%.
+On sampled demes, the two methods found a false window
+in 16--34\% of the replicates.
+Kendall's $\tau_b$ without a correction for structure
+found false windows in every replicate.
+
+From population structure alone,
+\ecolocator predicted the environment
+with $R^2$ 0.52, 0.34, and 0.24 at $\sigma_D = 0.1$, 0.3, and 0.5,
+and 21\%, 50\%, and 88\% of the prediction
+went through the predicted location.
+The attribution still ranks a few SNPs far above the rest:
+the largest attribution was 5.2, 4.4, and 3.9 times the median,
+and the 99th percentile 3.7, 3.1, and 2.8 times the median.
+In the main simulations, with local adaptation,
+these ratios were 5.7--8.6 and 4.5--6.1.
+The height of the attribution therefore does not show
+whether a population is locally adapted;
+the location-corrected GEA does.
+
+\begin{table}[ht]
+  \centering
+  \caption{\textbf{Simulations without local adaptation.}
+  No QTL mutations, $\sigma_K = 1000$, paper maps;
+  100 replicates per column.
+  Share of replicates with at least one window hit at $q < 0.05$
+  (all hits are false),
+  with the mean number of such windows per replicate in parentheses.
+  Demes, the method on the allele frequencies of sampled demes.}
+  \label{tab:null}
+  \small
+  \begin{tabular}{@{}lccc@{}}
+  \hline
+  \textbf{Method} & $\boldsymbol{\sigma_D = 0.1}$ & $\boldsymbol{\sigma_D = 0.3}$ & $\boldsymbol{\sigma_D = 0.5}$ \\
+  \hline
+  Location-corrected GEA            & 0.00 (0.00) & 0.08 (0.08) & 0.04 (0.04) \\
+  Location-corrected GEA, Simes     & 0.01 (0.01) & 0.09 (0.09) & 0.05 (0.05) \\
+  LFMM2, $K = 1$                    & 0.01 (0.02) & 0.00 (0.00) & 0.01 (0.01) \\
+  LFMM2, $K = 5$                    & 0.04 (0.06) & 0.05 (0.05) & 0.05 (0.05) \\
+  \texttt{WZA}                      & 0.19 (0.31) & 0.23 (0.37) & 0.19 (0.36) \\
+  Top-candidate method              & 0.40 (0.54) & 0.38 (0.44) & 0.35 (0.40) \\
+  \texttt{WZA}, demes               & 0.20 (0.41) & 0.16 (0.31) & 0.23 (0.32) \\
+  Top-candidate method, demes       & 0.34 (0.40) & 0.21 (0.25) & 0.26 (0.32) \\
+  Kendall's $\tau_b$, no correction & 1.00 (99.8) & 1.00 (96.3) & 1.00 (80.1) \\
+  \hline
+  \end{tabular}
+\end{table}
+
 % === Review Responses (extracted to a separate PDF by the Makefile) ===
 % Revision build only. Records the absolute page number where the
 % responses begin into review-responses-pagenum.txt so the Makefile can
