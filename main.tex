@@ -2796,6 +2796,97 @@ slightly higher than the GEAs.
   \end{tabular}
 \end{table}
 
+%%%%%% Supplemental text: spatial pattern of the environment %%%%%%
+\subsection*{Spatial pattern of the environment}
+
+To test how the spatial pattern of the environment
+changes the results,
+we ran the main model on five more sets of maps (\Cref{tab:spatial}).
+Every set has 110 maps on an $8 \times 8$ grid,
+and map $N$ of every set starts from the same random draws.
+Two sets keep the values of each paper map
+and change only where the values are.
+On the chessboard,
+the upper half of the values fills the dark squares
+and the lower half the light squares,
+each half in random order,
+so that neighboring cells differ as much as possible.
+In the shuffled maps,
+the cells of the paper map are in random order.
+We also made two smoother sets of midpoint-displacement maps,
+with Hurst exponents $H = 0.5$ and 1.
+In the last set,
+the optimum is a planar gradient in a random direction,
+so that it is collinear with location.
+We ran each set at $\sigma_D = 0.1$ and 0.3
+($\sigma_K = 0.5$, architecture 1;
+100 replicates each; 200,000 ticks).
+The paper maps at the same settings are part of the main simulations.
+
+\ecolocator predicts the environment from a polygenic score of the SNPs
+and from its own predicted location.
+To measure how much of the prediction goes through the predicted location,
+we split the attribution of each SNP into a part through the score
+and a part through the predicted location,
+and report the location part as a share of the total attribution.
+We compared the methods as in the polygenicity series:
+power at Benjamini--Hochberg $q < 0.05$ for windows with a QTL site,
+and window-level AUC-PR for windows with a major QTL.
+
+Location $R^2$ is the same on every set of maps
+(0.97 at $\sigma_D = 0.1$ and 0.92 at $\sigma_D = 0.3$).
+The environment $R^2$ increases with the spatial autocorrelation
+of the maps,
+from 0.75 and 0.39 on the chessboard to 0.95 and 0.91 on the gradient.
+On every set except the gradient,
+16--40\% of the prediction goes through the predicted location,
+the location-corrected GEA has power 0.23--0.46,
+and its AUC-PR is within 0.05 of LFMM2's
+and ahead of it at $\sigma_D = 0.3$.
+On the gradient,
+97--98\% of the prediction goes through the predicted location.
+The predicted location then also predicts the environment,
+so the location-corrected GEA removes most of the signal:
+at $\sigma_D = 0.1$ its power is 0.07, against 0.33 for LFMM2,
+and its AUC-PR 0.54, against 0.82.
+
+\begin{table}[ht]
+  \centering
+  \caption{\textbf{Spatial pattern of the environment.}
+  Map sets from the least to the most spatially autocorrelated;
+  $I$, mean Moran's $I$ over the 110 maps of each set;
+  $\sigma_K = 0.5$, architecture 1, 100 replicates per row (means).
+  $R^2$, cross-fitted $R^2$ of \ecolocator's environment prediction;
+  location share, share of the attribution
+  through the predicted location;
+  power, at $q < 0.05$ (windows with a QTL site);
+  AUC-PR, for windows with a major QTL;
+  Corr.\ GEA, location-corrected GEA;
+  LFMM2 with $K = 5$.}
+  \label{tab:spatial}
+  \small
+  \setlength{\tabcolsep}{3.5pt}
+  \begin{tabular}{@{}lccccccccc@{}}
+  \hline
+  & & & & \textbf{Location} & \multicolumn{2}{c}{\textbf{Power}} & \multicolumn{3}{c}{\textbf{AUC-PR, major QTL}} \\
+  \textbf{Maps} & $\boldsymbol{I}$ & $\boldsymbol{\sigma_D}$ & $\boldsymbol{R^2}$ & \textbf{share} & \textbf{Corr.\ GEA} & \textbf{LFMM2} & \textbf{SHAP} & \textbf{Corr.\ GEA} & \textbf{LFMM2} \\
+  \hline
+  Chessboard & $-0.68$ & 0.1 & 0.75 & 0.18 & 0.31 & 0.36 & 0.60 & 0.57 & 0.62 \\
+   &  & 0.3 & 0.39 & 0.26 & 0.23 & 0.15 & 0.69 & 0.65 & 0.63 \\
+  Shuffled & $-0.02$ & 0.1 & 0.80 & 0.16 & 0.42 & 0.39 & 0.62 & 0.67 & 0.70 \\
+   &  & 0.3 & 0.62 & 0.23 & 0.37 & 0.27 & 0.76 & 0.74 & 0.73 \\
+  Paper ($H = 0$) & 0.36 & 0.1 & 0.85 & 0.17 & 0.44 & 0.46 & 0.66 & 0.69 & 0.70 \\
+   &  & 0.3 & 0.72 & 0.25 & 0.42 & 0.32 & 0.78 & 0.79 & 0.77 \\
+  $H = 0.5$ & 0.52 & 0.1 & 0.87 & 0.21 & 0.46 & 0.45 & 0.73 & 0.70 & 0.74 \\
+   &  & 0.3 & 0.75 & 0.30 & 0.43 & 0.33 & 0.82 & 0.81 & 0.79 \\
+  $H = 1$ & 0.65 & 0.1 & 0.87 & 0.28 & 0.38 & 0.42 & 0.73 & 0.69 & 0.72 \\
+   &  & 0.3 & 0.78 & 0.40 & 0.41 & 0.34 & 0.82 & 0.79 & 0.78 \\
+  Gradient & 0.86 & 0.1 & 0.95 & 0.97 & 0.07 & 0.33 & 0.81 & 0.54 & 0.82 \\
+   &  & 0.3 & 0.91 & 0.98 & 0.29 & 0.38 & 0.86 & 0.79 & 0.85 \\
+  \hline
+  \end{tabular}
+\end{table}
+
 % === Review Responses (extracted to a separate PDF by the Makefile) ===
 % Revision build only. Records the absolute page number where the
 % responses begin into review-responses-pagenum.txt so the Makefile can
