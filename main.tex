@@ -587,7 +587,7 @@ After dispersal, each individual survives the tick
 with probability $w(z, \theta)\, C_i$ (\Cref{eq:stabsel,eq:comp}).
 The density $D_i$ uses a Gaussian kernel with SD $\sigma_C = 0.3$,
 and $\rho = (1/4) / \big((1 + 1/4) K\big)$
-with $K = 100$ individuals per unit area,
+with $K = 100$ individuals per unit area,\llabel{simK}
 so that without selection the density stays near $K$.
 By varying the dispersal parameter
 and the standard deviation of the fitness function,
@@ -671,7 +671,7 @@ at $10^{-8}$ per site inside the QTL windows
 and $2 \times 10^{-8}$ outside them,
 so that the total mutation rate (QTL and neutral together)
 is $2 \times 10^{-8}$ per site along the whole chromosome.
-Each simulation runs for 200,000 ticks.
+Each simulation runs for 200,000 ticks.\llabel{simrunlength}
 In long burn-in runs, 99\% of the genome had coalesced
 by a median of 80,000 ticks at $\sigma_D = 0.1$
 and 60,000 ticks at $\sigma_D = 0.3$ (\Cref{tab:burnin}),
@@ -986,7 +986,8 @@ as for the location-corrected GEA.
 
 \paragraph{\texttt{WZA} and the top-candidate method.}
 We used the script of \citet{booker_wza_2024}
-(\texttt{general\_WZA\_script.py}, TBooker/WZA on GitHub, commit \texttt{8191f58})
+(\texttt{general\_\allowbreak WZA\_\allowbreak script.py},
+TBooker/WZA on GitHub, commit \texttt{8191f58})
 as its documentation describes.
 For every SNP, we computed Kendall's $\tau_b$
 between the genotype and the local optimum of each individual,
@@ -2726,9 +2727,7 @@ of the population had coalesced.
 We ran 10 replicates at each of $\sigma_D = 0.1$ and 0.3
 ($\sigma_K = 0.5$, architecture 1)
 for 500,000 ticks on the $5 \times 5$ landscape,
-and for 1,000,000 ticks on a $10 \times 10$ landscape
-with the same density ($K = 100$ per unit area),
-and wrote the tree sequence every 5,000 and 10,000 ticks.
+and wrote the tree sequence every 5,000 ticks.
 For each snapshot we computed the fraction of the genome
 whose tree has a single root within the simulation.
 Below 1, part of the genealogy lies before the start of the simulation,
@@ -2743,9 +2742,6 @@ and the time after which each stayed within three standard deviations
 of its final level, with the standard deviation of its fluctuation
 late in the run (\Cref{tab:burnin}).
 
-The time to coalescence grows about in proportion to the population size:
-on the $10 \times 10$ landscape, with four times as many individuals,
-it is about 3.8 times as long.
 Expected neutral diversity reaches its final level
 before the genome has fully coalesced,
 and the slope of isolation by distance much earlier.
@@ -2779,19 +2775,17 @@ by the start of the run was small:
   Ticks until 99\% of the genome had coalesced,
   and until the expected neutral diversity and the slope of
   isolation by distance reached their final level;
-  10 replicates per row, $\sigma_K = 0.5$, architecture 1.
-  Times are measured at the snapshots
-  (every 5,000 ticks on $5 \times 5$, every 10,000 ticks on $10 \times 10$).}
+  10 replicates per row on the $5 \times 5$ landscape,
+  $\sigma_K = 0.5$, architecture 1.
+  Times are measured at the snapshots, every 5,000 ticks.}
   \label{tab:burnin}
-  \begin{tabular}{@{}lccccc@{}}
+  \begin{tabular}{@{}lcccc@{}}
   \hline
-  & & \multicolumn{2}{c}{\textbf{99\% coalesced}} & \multicolumn{2}{c}{\textbf{Final level, median}} \\
-  \textbf{Landscape} & $\boldsymbol{\sigma_D}$ & \textbf{Median} & \textbf{Largest} & \textbf{Diversity} & \textbf{IBD slope} \\
+  & \multicolumn{2}{c}{\textbf{99\% coalesced}} & \multicolumn{2}{c}{\textbf{Final level, median}} \\
+  $\boldsymbol{\sigma_D}$ & \textbf{Median} & \textbf{Largest} & \textbf{Diversity} & \textbf{IBD slope} \\
   \hline
-  $5 \times 5$   & 0.1 & 80,000  & 470,000 & 42,500  & 5,000 \\
-  $5 \times 5$   & 0.3 & 60,000  & 105,000 & 35,000  & 7,500 \\
-  $10 \times 10$ & 0.1 & 300,000 & 310,000 & 165,000 & 20,000 \\
-  $10 \times 10$ & 0.3 & 230,000 & 240,000 & 135,000 & 10,000 \\
+  0.1 & 80,000 & 470,000 & 42,500 & 5,000 \\
+  0.3 & 60,000 & 105,000 & 35,000 & 7,500 \\
   \hline
   \end{tabular}
 \end{table}
@@ -2869,7 +2863,7 @@ while local adaptation stays as strong
 (correlation of phenotype and optimum 0.84--0.86 at every level).
 $T^*$ falls from 0.94 to 0.57,
 and at $U = 10^{-2}$ only 6\% of the local adaptation at the end of the run
-comes from sites that segregated 100,000 ticks earlier.
+comes from sites that already segregated at tick 100,000.
 \ecolocator predicts the environment and location about equally well
 at every level
 ($R^2$ 0.69--0.71 and 0.91--0.92).
@@ -2883,7 +2877,7 @@ and the top-candidate method few above $U = 2 \times 10^{-4}$
 (at most 0.25).
 At $U = 2 \times 10^{-4}$, where one 20~kb window holds all QTL,
 the false-discovery rate of the corrected GEA is 0.71,
-and 49\% of its hits lie more than one window
+and in an average replicate 49\% of its hits lie more than one window
 from any window with a QTL site.
 Above the transition, \ecolocator's attribution ranks the major QTL
 slightly higher than the GEAs.
@@ -3057,6 +3051,10 @@ and the mean number of such windows per replicate
 The location-corrected GEA found a false window
 in 0--8\% of the replicates,
 and LFMM2 in 0--1\% ($K = 1$) and 4--5\% ($K = 5$).
+At $\sigma_D = 0.3$, the rates of the location-corrected GEA
+and its Simes test (8 and 9 of 100) are above 5\%,
+but binomial tests do not distinguish them from it
+($p = 0.13$ and 0.06).
 \texttt{WZA} found a false window in 19--23\% of the replicates
 and the top-candidate method in 35--40\%.
 On sampled demes, the two methods found a false window

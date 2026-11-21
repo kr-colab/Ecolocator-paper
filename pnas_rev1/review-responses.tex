@@ -109,7 +109,7 @@ simulations across the threshold of \citet{sakamoto_mutation_2024},
 with the results in \Cref{tab:polygenicity}.
 
 \textit{Simulation details.} The carrying capacity is $K = 100$ individuals
-per unit area on a $5 \times 5$ landscape, so the landscape holds about
+per unit area on a $5 \times 5$ landscape \llname{simK}, so the landscape holds about
 2,500 individuals at most. Selection and dispersal keep the population
 below this number: at the end of the steady-state runs it held 740--1,740
 individuals per condition (means), fewer with stronger selection and with
@@ -121,7 +121,7 @@ distribution with SD 0.05, and the local optima range from $-1$ to 1.
 Neutral mutations are added after the simulation, so that the total
 mutation rate is $2\times10^{-8}$ per site, uniform along the 1~Mb
 chromosome. The recombination rate is $10^{-6}$ per site, so the
-chromosome is 1 Morgan long. All runs last 200,000 ticks, 2.5 to 3.3 times
+chromosome is 1 Morgan long. All runs last 200,000 ticks \llname{simrunlength}, 2.5 to 3.3 times
 the median time to coalescence in long runs with $\sigma_K = 0.5$
 (\Cref{tab:burnin}). With stronger selection, fewer runs had coalesced:
 with $\sigma_K = 0.3$, 99\% of the genome had coalesced by the end of the
@@ -150,7 +150,7 @@ their diagnostic: the stability, over time, of the loci that carry local
 adaptation. For this we used each
 allele's contribution to local adaptation, as the reviewer suggests in
 point \textit{1.2} \citep{booker_structure_2024}. From tick
-100,000 to tick 200,000, the longest time that a locus stayed among the
+100,000 to tick 198,000, the longest time that a locus stayed among the
 loci that carry half of the local adaptation ($T^*$) was 0.94, 0.89, 0.78,
 and 0.57 of the period, from the smallest $U$ to the largest. At the end,
 the share of local adaptation from sites that already segregated at tick
