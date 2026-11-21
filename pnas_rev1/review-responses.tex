@@ -121,8 +121,12 @@ distribution with SD 0.05, and the local optima range from $-1$ to 1.
 Neutral mutations are added after the simulation, so that the total
 mutation rate is $2\times10^{-8}$ per site, uniform along the 1~Mb
 chromosome. The recombination rate is $10^{-6}$ per site, so the
-chromosome is 1 Morgan long. All runs last 200,000 ticks, which is enough
-for the ancestry to coalesce (\Cref{tab:burnin}).
+chromosome is 1 Morgan long. All runs last 200,000 ticks, 2.5 to 3.3 times
+the median time to coalescence in long runs with $\sigma_K = 0.5$
+(\Cref{tab:burnin}). With stronger selection, fewer runs had coalesced:
+with $\sigma_K = 0.3$, 99\% of the genome had coalesced by the end of the
+run in 36--93\% of the replicates, so in those runs part of the genealogy
+still comes from recapitation.
 
 \textit{Where our simulations sit relative to the threshold.} In the
 two-population model of Sakamoto et al., the threshold is

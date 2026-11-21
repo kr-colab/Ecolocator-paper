@@ -672,7 +672,12 @@ Each simulation runs for 200,000 ticks.
 In long burn-in runs, 99\% of the genome had coalesced
 by a median of 80,000 ticks at $\sigma_D = 0.1$
 and 60,000 ticks at $\sigma_D = 0.3$ (\Cref{tab:burnin}),
-so 200,000 ticks is about 2.5 to 3 times the time to coalescence.
+so 200,000 ticks is about 2.5 to 3.3 times the time to coalescence.
+At the end of the main runs, 99\% of the genome had coalesced
+in 97--100\% of the replicates with $\sigma_K = 0.5$ or 0.7,
+but in only 36\%, 67\%, and 93\% of the replicates with $\sigma_K = 0.3$
+($\sigma_D = 0.1$, 0.3, and 0.5).
+In those runs, part of the genealogy still comes from recapitation.
 
 \subsection{Varying dispersal, selection, and genetic architecture parameters}
 To evaluate the robustness of \ecolocator
@@ -938,7 +943,7 @@ would also remove the signal of the environment.
 The predicted location does the same
 when the environment changes steadily across space,
 because it then also predicts the environment
-(\Cref{sec:strengths-limitations}, \Cref{tab:spatial}).
+(Discussion, \textit{Strengths and limitations}; \Cref{tab:spatial}).
 
 \paragraph{Software.}
 The test is in the \ecolocator package
@@ -2205,7 +2210,7 @@ covaries with geography, non-causal but spatially structured loci can still
 receive high attribution for climate simply because they predict location.
 The attribution itself does not ask whether a locus carries environmental
 signal beyond what spatial structure explains.
-The location-corrected GEA does (\Cref{sec:correctedgea}):
+The location-corrected GEA does (Methods, \textit{Location-corrected GEA}):
 it uses \ecolocator's predicted location as the covariate for structure.
 We therefore find loci with the location-corrected GEA,
 and use the attribution to describe how \ecolocator predicts.
@@ -2744,11 +2749,18 @@ and the slope of isolation by distance much earlier.
 We ran the continuous-space simulations for 200,000 ticks
 on the $5 \times 5$ landscape,
 about 2.5 times the median time to coalescence at $\sigma_D = 0.1$
-and 3 times at $\sigma_D = 0.3$.
+and 3.3 times at $\sigma_D = 0.3$.
 By 200,000 ticks, 99\% of the genome had coalesced
 in 9 of the 10 replicates at $\sigma_D = 0.1$
 (the tenth took 470,000 ticks)
 and in all 10 replicates at $\sigma_D = 0.3$.
+These long runs used $\sigma_K = 0.5$.
+With stronger selection, fewer runs had coalesced:
+at the last snapshot of the main runs (tick 198,000),
+99\% of the genome had coalesced in 97--100\% of the replicates
+with $\sigma_K = 0.5$ or 0.7,
+but in only 36\%, 67\%, and 93\% of the replicates with $\sigma_K = 0.3$
+at $\sigma_D = 0.1$, 0.3, and 0.5.
 
 \begin{table}[ht]
   \centering
@@ -2824,7 +2836,8 @@ that comes from sites already segregating in the first.
 We compared the location-corrected GEA, LFMM2 with $K = 5$,
 \texttt{WZA}, the top-candidate method,
 and \ecolocator's attribution
-as described in the Methods (\Cref{sec:correctedgea} and \Cref{sec:comparison}),
+as described in the Methods
+(\textit{Location-corrected GEA} and \textit{Comparing \ecolocator to other GEA methods}),
 at the level of 10~kb windows:
 power for windows with any QTL site,
 and AUC-PR for windows with a major QTL.
@@ -2896,7 +2909,7 @@ slightly higher than the GEAs.
   & \multicolumn{2}{c}{$\boldsymbol{R^2}$} & \multicolumn{4}{c}{\textbf{Power}} & \multicolumn{3}{c}{\textbf{AUC-PR, major QTL}} \\
   $\boldsymbol{U}$ & \textbf{Env.} & \textbf{Loc.} & \textbf{Corr.\ GEA} & \textbf{LFMM2} & \textbf{WZA} & \textbf{Top-cand.} & \textbf{SHAP} & \textbf{Corr.\ GEA} & \textbf{LFMM2} \\
   \hline
-  $2 \times 10^{-4}$ & 0.69 & 0.92 & 0.95 & 0.97 & 0.04 & 0.66 & 0.90 & 0.91 & 0.93 \\
+  $2 \times 10^{-4}$ & 0.69 & 0.92 & 0.95 & 0.97 & 0.04 & 0.66 & 0.90 & 0.91 & 0.92 \\
   $2 \times 10^{-3}$ & 0.71 & 0.92 & 0.44 & 0.34 & 0.03 & 0.06 & 0.78 & 0.80 & 0.79 \\
   $5 \times 10^{-3}$ & 0.71 & 0.92 & 0.16 & 0.10 & 0.01 & 0.02 & 0.68 & 0.63 & 0.62 \\
   $10^{-2}$          & 0.71 & 0.91 & 0.04 & 0.02 & 0.00 & 0.00 & 0.58 & 0.52 & 0.49 \\
@@ -2938,7 +2951,7 @@ we split the attribution of each SNP into a part through the score
 and a part through the predicted location,
 and report the location part as a share of the total attribution.
 We compared the methods as in the polygenicity series
-(\Cref{sec:comparison}):
+(Methods, \textit{Comparing \ecolocator to other GEA methods}):
 power for windows with any QTL site,
 and AUC-PR for windows with a major QTL.
 
@@ -3010,7 +3023,7 @@ comes from population structure.
 We ran $\sigma_D = 0.1$, 0.3, and 0.5
 (100 replicates each; 200,000 ticks)
 and applied every method as in the main simulations
-(\Cref{sec:comparison}).
+(Methods, \textit{Comparing \ecolocator to other GEA methods}).
 Every hit is false in these runs,
 so we report the share of replicates
 with at least one window hit at $q < 0.05$,
