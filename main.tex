@@ -107,7 +107,8 @@ a supervised deep neural network that jointly predicts geographic location
 and climate of origin from genotypes. 
 Through extensive simulations we demonstrate that
 \ecolocator accurately recovers geographic location and environment of origin from genotype data,
-and, with SHAP-based feature attribution, identifies adaptive loci more reliably than benchmark GEA methods.
+and that its predicted locations, used to correct a genotype--environment association test for population structure,
+find adaptive loci as well as LFMM2 and better than window-based GEA methods.
 We apply our method to coastal \dfir (\textit{Pseudotsuga menziesii} var. \textit{menziesii}),
 where \ecolocator predicts geographic origin ($R^2=0.75$--$0.83$) and climate of origin
 ($R^2=0.52$--$0.72$) under leave-one-out cross-validation.
@@ -710,6 +711,8 @@ When varying one parameter we held the others fixed:
 the dispersal sweep used \(\sigma_K = 0.5\) and genetic architecture 1,
 the selection sweep used \(\sigma_D = 0.3\) and genetic architecture 1,
 and the architecture sweep used \(\sigma_D = 0.1\) and \(\sigma_K = 0.5\).
+We also ran the other four combinations of \(\sigma_D\) and \(\sigma_K\)
+at architecture 1, to complete the grid (\Cref{tab:supptable2}).
 Spatial and phenotypic scales in these simulations are defined relative to the 
 simulated landscape and environmental gradient rather than to physical distances,
 and are therefore best interpreted as ratios.
@@ -1217,71 +1220,82 @@ The indirect location plus ClimateNA estimates were scored the same way.
 \subsection{\ecolocator prediction accuracy scales proportionally
 with strength of local adaptation}
 
+% FIGURES: Figure 2, Figure S4 (fig:local-adaptation), and the old
+% correlated-gradient figures (fig:env-map-correlated, fig:loocv-accuracy)
+% show the submitted runs; replace them with the revision runs.
 We evaluated \ecolocator
 across a range of simulation parameterizations (\Cref{fig:sim-performance}).
-Following \citet{booker_wza_2024},
-we ran 100 simulation replicates for each parameter combination in our continuous space simulations,
-and we ran 30 replicates for the discrete space simulations.
-We additionally summarized
+We ran 100 replicates of each condition of the continuous-space simulations,
+each for 200,000 ticks (Methods),
+and 30 replicates of the discrete-space simulations.
+We also summarized
 the distribution of local adaptation scores
 across representative parameter ranges to illustrate
 how dispersal, selection strength, and genetic architecture
-influence the degree of local adaptation (see \Cref{fig:local-adaptation}).
+change the degree of local adaptation (see \Cref{fig:local-adaptation}).
 Under restricted dispersal (\(\sigma_D\) = 0.1) and
-stronger selection (\(\sigma_K\)=0.5),
+selection with \(\sigma_K\) = 0.5,
 simulated populations became strongly locally adapted
-to their environments (LA $<$ 0.1) after 10,000 generations. 
-\ecolocator performed best when dispersal was constrained
-(\(\sigma_D\) = 0.1, Lon. $R^2$=0.968, Lat. $R^2$=0.967, Env. $R^2$=0.769;
+to their environments
+(LA = 0.10; correlation of phenotype and optimum 0.91).
+\ecolocator performed best when dispersal was restricted
+(\(\sigma_D\) = 0.1, Lon. $R^2$=0.971, Lat. $R^2$=0.972, Env. $R^2$=0.846;
 \Cref{fig:sim-performance}, panel a),
-while increasing dispersal reduced accuracy
-for both geographic and environmental prediction 
-(\(\sigma_D\)=0.5, Lon. $R^2$=0.815, Lat. $R^2$=0.814, Env. $R^2$=0.336;
+while wider dispersal reduced accuracy
+for both geographic and environmental prediction
+(\(\sigma_D\)=0.5, Lon. $R^2$=0.826, Lat. $R^2$=0.827, Env. $R^2$=0.601;
 \Cref{fig:sim-performance}, panel a).
 This pattern is consistent with increasing gene flow weakening both
 isolation-by-distance structure and genotype--environment correspondence.
-Weakening selection also reduced environmental prediction accuracy 
-\((\sigma_K\)=0.3, Env. $R^2$=0.609;
-\(\sigma_K\)=0.5, Env. $R^2$=0.561;
-\(\sigma_K\)=0.7, Env. $R^2$=0.421).
-In contrast, geographic prediction remained largely unchanged
-across selection regimes 
-(\(\sigma_K\)=0.3, Lon. $R^2$=0.917, Lat. $R^2$=0.916;
- \(\sigma_K\)=0.5, Lon. $R^2$=0.911, Lat. $R^2$=0.911;
- \(\sigma_K\)=0.7, Lon. $R^2$=0.906, Lat. $R^2$=0.907).
-This dissociation is itself informative.
+Weakening selection also reduced environmental prediction accuracy
+at \(\sigma_D\) = 0.3
+(\(\sigma_K\)=0.3, Env. $R^2$=0.850;
+\(\sigma_K\)=0.5, Env. $R^2$=0.716;
+\(\sigma_K\)=0.7, Env. $R^2$=0.594).
+In contrast, geographic prediction changed little
+across selection regimes
+(\(\sigma_K\)=0.3, Lon. $R^2$=0.930, Lat. $R^2$=0.930;
+ \(\sigma_K\)=0.5, Lon. $R^2$=0.920, Lat. $R^2$=0.919;
+ \(\sigma_K\)=0.7, Lon. $R^2$=0.914, Lat. $R^2$=0.914).
 Dispersal was held constant across selection regimes,
 and geographic accuracy changed little,
 so most of the change in environmental accuracy
 with the strength of selection comes from local adaptation.
+Across the full grid of dispersal and selection,
+environmental $R^2$ ranged from 0.446 ($\sigma_D = 0.5$, $\sigma_K = 0.7$)
+to 0.903 ($\sigma_D = 0.1$, $\sigma_K = 0.3$),
+and geographic $R^2$ from 0.81 to 0.97 (\Cref{tab:supptable2}).
 
-Varying genetic architecture produced only a slight difference in local adaptation
-(${\Delta}$LA=0.008 between GA1 and GA3),
-despite the higher number of QTL mutations arising
-under genetic architecture 3 (GA1=25, GA3=35).
-Geographic prediction accuracy remained nearly identical across architectures
-(GA1 - Lon. $R^2$=0.967, Lat. $R^2$=0.967; 
-GA2 - Lon. $R^2$=0.967, Lat. $R^2$=0.967; 
-GA3 - Lon. $R^2$=0.968, Lat. $R^2$=0.968),
-and environmental covariate prediction accuracy was similarly stable 
-(GA1 - Env. $R^2$=0.759; 
-GA2 - Env. $R^2$=0.771; 
-GA3 - Env. $R^2$=0.787).
-Although genetic architecture 1 
-exhibited more extreme outliers and genetic architecture 3 showed slightly higher environmental prediction accuracy,
-\ecolocator performance was relatively robust 
-to the genomic distribution of adaptive loci within the range explored here. 
+Varying genetic architecture changed local adaptation little
+(LA = 0.096, 0.099, and 0.104 for architectures 1, 2, and 3),
+although more QTL sites segregated under architecture 3
+(69, 91, and 137 at the end of the runs).
+Geographic prediction accuracy was nearly identical across architectures
+(Lon. and Lat. $R^2$ = 0.971--0.972),
+and environmental prediction accuracy was similarly stable
+(GA1 - Env. $R^2$=0.846;
+GA2 - Env. $R^2$=0.850;
+GA3 - Env. $R^2$=0.840),
+so \ecolocator performance was robust
+to the genomic distribution of adaptive loci within the range explored here.
 
-To test whether this robustness extends to landscapes where environmental 
-variation covaries with geography, we ran additional supplemental simulations 
-using genetic architecture 3, under two combined dispersal/selection 
-regimes: limited dispersal with strong selection 
-($\sigma_D=0.1$, $\sigma_K=0.5$), and higher dispersal with 
-weaker selection ($\sigma_D=0.5$, $\sigma_K=0.7$) (\Cref{fig:env-map-correlated}). 
-Per-replicate leave-one-out cross validation (LOOCV) $R^2$ 
-again declined with 
-increasing dispersal and weakening selection under this design, 
-most sharply for latitude (\Cref{fig:loocv-accuracy}).
+To test how the spatial pattern of the environment changes these results,
+we ran the main model on five more sets of maps,
+from a chessboard to a planar gradient (\Cref{tab:spatial}).
+Location accuracy was the same on every set,
+and environmental accuracy rose with the spatial autocorrelation
+of the environment,
+from $R^2$ = 0.75 and 0.39 on the chessboard
+to 0.95 and 0.91 on the gradient ($\sigma_D$ = 0.1 and 0.3).
+On the gradient, 97--98\% of the prediction went through
+\ecolocator's predicted location.
+Across the threshold for stable local adaptation of
+\citet{sakamoto_mutation_2024},
+\ecolocator predicted the environment about equally well at every level
+($R^2$ = 0.69--0.71; \Cref{tab:polygenicity}).
+Without local adaptation,
+\ecolocator still predicted the environment from population structure alone
+($R^2$ = 0.24--0.52; \Cref{tab:null}).
 \ecolocator also performed strongly under the discrete-space,
 Wright--Fisher simulation regime (\Cref{fig:sim-performance}, panel b).
 Across 30 simulation replicates,
@@ -1323,59 +1337,37 @@ We summarize the full simulation $R^2$ results in \Cref{tab:supptable2}.
     \label{fig:sim-performance}
 \end{figure}
 
-\subsection{Feature attribution methods reveal adaptive loci \textit{in silico}}
+\subsection{Feature attribution shows how \ecolocator predicts the environment}
 
-To evaluate whether feature attribution identifies adaptive loci,
-we summarized SHAP values across all simulation replicates under
-strong local adaptation ($\sigma_D = 0.1$, $\sigma_K = 0.5$)
-and compared attribution scores between non-neutral variants
-and neutral variants,
-including sites in linkage disequilibrium.
-Across all continuous-space genetic architectures,
-non-neutral variants consistently received higher SHAP values
-than neutral sites,
-indicating that \ecolocator preferentially attributes predictive signal
-to loci under selection
+% FIGURES: Figure 3 and fig:shap-manhattan-sim show the submitted runs;
+% replace them with the revision runs.
+To see which SNPs \ecolocator's environment prediction rests on,
+we computed the attribution of every SNP
+(mean $|\mathrm{SHAP}|$ in the cross-fitted models; Methods)
+and compared QTL sites with neutral sites.
+Under strong local adaptation ($\sigma_D = 0.1$, $\sigma_K = 0.5$),
+QTL sites ranked high among all SNPs:
+their median percentile rank within a replicate
+was 0.90, 0.84, and 0.77 for architectures 1, 2, and 3
 (\Cref{fig:shap-attribution}, panels a--c).
-This separation was evident both in individual simulation examples
-and in distributions aggregated across all replicates.
+Across the full grid of dispersal and selection it was 0.75--0.95.
 
-Under genetic architecture 1
-(\Cref{fig:shap-attribution}, panel a),
-non-neutral variants exhibited significantly higher mean attribution values
-($\mu = 0.390$) relative to neutral and LD sites combined
-($\mu = 0.292$; $p = 2.21 \times 10^{-4}$).
-A similar pattern was observed under genetic architecture 2
-(\Cref{fig:shap-attribution}, panel b),
-where non-neutral variants again showed elevated SHAP values
-($\mu = 0.403$)
-compared to neutral and LD variants
-($\mu = 0.303$; $p = 5.85 \times 10^{-6}$).
-Despite differences in the number of adaptive loci,
-genetic architecture 3
-(\Cref{fig:shap-attribution}, panel c)
-also showed enrichment of SHAP signal at non-neutral variants
-($\mu = 0.394$)
-relative to neutral and LD sites
-($\mu = 0.319$; $p = 8.79 \times 10^{-4}$).
+The attribution of each SNP splits into a part through the polygenic score
+and a part through the predicted location (\Cref{tab:spatial}).
+On the paper maps, 18--42\% of the attribution
+went through the predicted location,
+more with wider dispersal and weaker selection;
+on the gradient maps, 97--98\% did.
+The attribution has no null distribution.
+Without local adaptation,
+a few SNPs still received attributions far above the median
+(the largest 3.9--5.2 times the median),
+and these ratios overlap with those of the runs with local adaptation
+(\Cref{tab:null}).
+We therefore find loci with the location-corrected GEA (next section),
+and use the attribution to describe
+what \ecolocator's prediction rests on.
 
-Although effect sizes were modest
-(Cohen's $d \approx 0.14$--$0.18$ across architectures),
-the consistent shift in the distribution of attribution values
-indicates that adaptive loci are preferentially weighted by the model.
-Notably,
-the magnitude of separation between non-neutral and neutral variants
-was similar across genetic architectures,
-despite differences in the total number of causal loci
-and the extent of linkage disequilibrium.
-This observation suggests that feature attribution performance is robust 
-to variation in genetic architecture within the range explored here, 
-which also held under the spatially correlated environment design 
-described above (\Cref{fig:env-map-correlated}): non-neutral loci again showed 
-elevated attribution across all three targets, and longitude and 
-environment tracked the same genomic regions in a representative 
-replicate (\Cref{fig:shap-manhattan-sim}), an expected consequence of the two 
-variables following a shared spatial gradient by design.
 We observed stronger separation between neutral and non-neutral sites
 in the discrete-space Wright--Fisher simulations
 (\Cref{fig:shap-attribution}, panel d),
@@ -1384,14 +1376,8 @@ Non-neutral variants had substantially higher SHAP values
 than neutral variants,
 with a median attribution value of 0.326
 for non-neutral sites compared to 0.132
-for neutral sites.
-This difference was highly significant
-($p = 8.17 \times 10^{-9}$),
-indicating that \ecolocator concentrated attribution signal
-at causal loci in this discrete-deme simulation regime.
-These results show that SHAP-based feature attribution
-can highlight loci contributing to local adaptation,
-while also capturing signal from linked regions.
+for neutral sites
+($p = 8.17 \times 10^{-9}$).
 
 
 \begin{figure}[H]
@@ -1436,118 +1422,59 @@ eliminating predictive accuracy (X $R^2=-0.507$, Y $R^2=-0.426$, Env. $R^2=-0.42
 
 \subsection{Comparison of \ecolocator to other GEA methods}
 
-A notable capability of machine learning approaches like \ecolocator is that,
-in this context,
-feature attribution methods provide locus-level importance scores
-that can be interpreted analogously to genome--environment association statistics.
-This allows direct comparison between model-derived attribution scores
-and traditional GEA approaches for identifying adaptive loci.
-Using SHAP values computed from trained \ecolocator models,
-we ranked variants according to their contribution to environmental prediction
-and compared their performance to Weighted-Z Analysis (\texttt{WZA})
-\citep{booker_wza_2024}
-and the top-candidate method \citep{yeaman_convergent_2016}.
+% FIGURES: Figure 4 and fig:gea-comparison-regimes show the submitted
+% runs and the label-derived SHAP scores; replace them with the revision runs.
+To find loci, we use \ecolocator's predicted locations
+as the covariate for population structure
+in a genotype--environment association test
+(location-corrected GEA; Methods).
+We compared it with LFMM2, \texttt{WZA}, the top-candidate method,
+and Kendall's $\tau_b$ without a correction,
+mainly at the level of 10~kb windows (Methods; \Cref{fig:gea-comparison}).
 
-To quantify detection accuracy,
-we calculated empirical FDR scores
-from SHAP rankings, calibrated against known true adaptive status
-rather than a null distribution (see Methods),
-and evaluated performance using precision--recall curves
-(\Cref{fig:gea-comparison}). We refer to this \ecolocator-plus-SHAP pipeline
-as \ecolocator\texttimes{}SHAP below, since SHAP attribution is what turns
-\ecolocator's trained model into a method that can be benchmarked directly
-against GEA approaches like \texttt{WZA}
-and top-candidate. The random baseline represents the AUC-PR
-expected if variants were ranked at random,
-given the proportion of adaptive variants in each simulation regime.
-For each simulation regime,
-the precision--recall curves were constructed by pooling SNPs
-across all simulation replicates,
-so the resulting AUC-PR values reflect global discriminatory performance.
-We also calculated replicate-level AUC-PR values,
-shown as violin plots.
-Thus,
-the pooled AUC-PR values summarize overall variant-level discrimination
-across all replicates,
-whereas the violin plots summarize replicate-to-replicate variation
-in method performance.
+For windows with a major QTL,
+the location-corrected GEA ranked as well as LFMM2 with the better $K$
+in every condition (AUC-PR within 0.03; 0.50--0.84),
+without a choice of $K$,
+and better than \texttt{WZA} (0.25--0.61)
+and the top-candidate method (0.50--0.74).
+At $q < 0.05$, it had the most power in 8 of the 11 conditions
+(0.11--0.63 for windows with any QTL),
+with a false-discovery rate of 0.08--0.28,
+against 0.05--0.22 for LFMM2 with $K = 5$;
+its Simes window test lowered the false-discovery rate to 0.04--0.20.
+\texttt{WZA} and the top-candidate method found few windows
+(power at most 0.08).
+Without local adaptation (\Cref{tab:null}),
+the location-corrected GEA found a false window in 0--8\% of the replicates,
+LFMM2 in 0--5\%,
+\texttt{WZA} in 19--23\%,
+and the top-candidate method in 35--40\%.
+Across the threshold for stable local adaptation (\Cref{tab:polygenicity}),
+locus discovery weakened for every method:
+for windows with a major QTL,
+the power of the location-corrected GEA fell from 0.98 to 0.14
+as the QTL mutation rate increased.
+When the environment was collinear with location (\Cref{tab:spatial}),
+the location-corrected GEA lost most of its signal at $\sigma_D = 0.1$
+(power 0.07, against 0.33 for LFMM2).
 
-Across all continuous-space genetic architectures,
-SHAP-based attribution consistently recovered
-a higher proportion of true adaptive variants
-than either comparison method in the pooled precision--recall analysis.
-Under genetic architecture 1,
-SHAP achieved a pooled AUC-PR of 0.1734,
-substantially exceeding \texttt{WZA} (0.0911)
-and the top-candidate approach (0.0890),
-and outperforming the random expectation (0.0426).
-Under genetic architecture 2,
-SHAP again showed improved performance
-(pooled AUC-PR = 0.1870)
-relative to \texttt{WZA} (0.0832)
-and the top-candidate method (0.0767),
-with a random baseline of 0.0514.
-Similarly,
-under genetic architecture 3,
-SHAP yielded a pooled AUC-PR of 0.1786,
-compared to 0.0946 for \texttt{WZA}
-and 0.0874 for the top-candidate approach
-(random = 0.0713).
-The replicate-level violin plots showed the same overall ranking.
-Under genetic architecture 1, 
-\ecolocator\texttimes{}SHAP had the highest mean AUC-PR
-(mean AUC-PR = 0.2076),
-followed by the top-candidate method
-(mean AUC-PR = 0.1281)
-and \texttt{WZA}
-(mean AUC-PR = 0.1212).
-Under genetic architecture 2,
-\ecolocator\texttimes{}SHAP again showed the highest mean performance
-(mean AUC-PR = 0.2211),
-followed by the top-candidate method
-(mean AUC-PR = 0.1032)
-and \texttt{WZA}
-(mean AUC-PR = 0.0995).
-Under genetic architecture 3,
-\ecolocator\texttimes{}SHAP maintained the highest mean AUC-PR
-(mean AUC-PR = 0.2054),
-followed by \texttt{WZA}
-(mean AUC-PR = 0.1133)
-and the top-candidate method
-(mean AUC-PR = 0.1049).
-Performance differences were most pronounced
-at low recall values,
-where SHAP maintained substantially higher precision,
-indicating that the highest-ranked loci
-were enriched for true causal variants.
-In contrast,
-\texttt{WZA} and the top-candidate method showed rapid declines in precision,
-approaching random expectations across much of the recall range.
-Notably,
-SHAP maintained improved performance
-across all genetic architectures,
-despite differences in the number
-and genomic distribution of adaptive loci.
-SHAP-based attribution retained its 
-advantage over \texttt{WZA} and the top-candidate method under 
-this same spatially correlated design (\Cref{fig:gea-comparison-regimes}).
+\ecolocator's attribution ranked QTL about as well as the GEAs
+(window-level AUC-PR for major QTL 0.53--0.85;
+at the SNP level it was the highest single-SNP score
+in 8 of the 11 conditions, AUC-PR 0.08--0.27),
+but it has no null distribution (previous section),
+so we compare it by ranking only.
 In the discrete-space Wright--Fisher simulations,
-\ecolocator\texttimes{}SHAP showed particularly strong recovery
-of adaptive loci,
-achieving a pooled AUC-PR of 0.8430
-relative to a random baseline of 0.0149
-(\Cref{fig:gea-comparison}, column d).
-\texttt{WZA} also performed well in this regime
-(pooled AUC-PR = 0.4983),
-whereas the top-candidate method showed substantially lower recovery
-(pooled AUC-PR = 0.0714).
-Replicate-level AUC-PR values followed the same ordering,
-with \ecolocator\texttimes{}SHAP showing the highest mean performance
-(mean AUC-PR = 0.9061),
-followed by \texttt{WZA}
-(mean AUC-PR = 0.6191)
-and the top-candidate method
-(mean AUC-PR = 0.1017).
+the attribution recovered adaptive loci well:
+pooled over the 27 replicates with attribution output,
+its AUC-PR was 0.73,
+against 0.50 for \texttt{WZA}
+and 0.07 for the top-candidate method
+(random expectation 0.015).
+The mean AUC-PR per replicate was 0.78, 0.62, and 0.10,
+and the attribution ranked adaptive loci higher than \texttt{WZA}
+in 21 of the 27 replicates.
 
 \begin{figure}[H]
     \adjustimage{width=1.1\textwidth,center}{figures/GEAcomparisonfig.pdf}
@@ -2675,7 +2602,11 @@ USDA Forest Service Award RDBIL-ERR16 to RCC.
 %%%%%% Supplemental Table 2 %%%%%%
 \begin{table}[ht]
   \centering
-  \caption{\textbf{Mean $R^2$ values for \ecolocator predictions of longitude, latitude, and environment across simulation types.}}
+  \caption{\textbf{Mean $R^2$ values for \ecolocator predictions of longitude, latitude, and environment across simulation types.}
+  Continuous space: cross-fitted $R^2$, 100 replicates per row, 200,000 ticks;
+  the architecture rows have $\sigma_D = 0.1$, $\sigma_K = 0.5$,
+  the $\sigma_K$ rows $\sigma_D = 0.3$,
+  and the $\sigma_D$ rows $\sigma_K = 0.5$ (all with architecture 1 unless stated).}
   \label{tab:supptable2}
   \begin{tabular}{@{}llccc@{}}
   \hline
@@ -2683,18 +2614,23 @@ USDA Forest Service Award RDBIL-ERR16 to RCC.
   \hline
   Wright--Fisher (discrete space) & -- & 0.986 & 0.985 & 0.916 \\
   \hline
-  \multirow{9}{*}{Non-Wright--Fisher (continuous space)}
-   & $g=1$ & 0.967 & 0.967 & 0.759 \\
-   & $g=2$ & 0.967 & 0.967 & 0.771 \\
-   & $g=3$ & 0.968 & 0.968 & 0.787 \\
+  \multirow{13}{*}{Non-Wright--Fisher (continuous space)}
+   & $g=1$ & 0.971 & 0.972 & 0.846 \\
+   & $g=2$ & 0.972 & 0.971 & 0.850 \\
+   & $g=3$ & 0.971 & 0.971 & 0.840 \\
    \cline{2-5}
-   & $\sigma_K=0.3$ & 0.917 & 0.916 & 0.609 \\
-   & $\sigma_K=0.5$ & 0.911 & 0.911 & 0.561 \\
-   & $\sigma_K=0.7$ & 0.906 & 0.907 & 0.421 \\
+   & $\sigma_K=0.3$ & 0.930 & 0.930 & 0.850 \\
+   & $\sigma_K=0.5$ & 0.920 & 0.919 & 0.716 \\
+   & $\sigma_K=0.7$ & 0.914 & 0.914 & 0.594 \\
    \cline{2-5}
-   & $\sigma_D=0.1$ & 0.968 & 0.967 & 0.769 \\
-   & $\sigma_D=0.3$ & 0.912 & 0.911 & 0.556 \\
-   & $\sigma_D=0.5$ & 0.815 & 0.814 & 0.336 \\
+   & $\sigma_D=0.1$ & 0.971 & 0.972 & 0.846 \\
+   & $\sigma_D=0.3$ & 0.920 & 0.919 & 0.716 \\
+   & $\sigma_D=0.5$ & 0.826 & 0.827 & 0.601 \\
+   \cline{2-5}
+   & $\sigma_D=0.1$, $\sigma_K=0.3$ & 0.973 & 0.973 & 0.903 \\
+   & $\sigma_D=0.1$, $\sigma_K=0.7$ & 0.970 & 0.970 & 0.778 \\
+   & $\sigma_D=0.5$, $\sigma_K=0.3$ & 0.848 & 0.847 & 0.750 \\
+   & $\sigma_D=0.5$, $\sigma_K=0.7$ & 0.813 & 0.815 & 0.446 \\
   \hline
   \end{tabular}
 \end{table}
