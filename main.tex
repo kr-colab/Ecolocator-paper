@@ -877,20 +877,24 @@ They give us a useful contrast to the harder spatial scenarios.
 
 \subsection{Feature attribution}
 
-To quantify the contribution of individual genetic features
-to \ecolocator's predictions, we use the \texttt{SHAP} Python
-package (\texttt{v.$\geq$0.47.0}) \citep{lundberg_shap_2017},
-which assigns importance scores
-based on each feature's marginal contribution to the model output
-across all possible feature coalitions.
-Attributions were computed separately for each prediction target
-(latitude, longitude, and environmental covariates),
-allowing the genetic contributions to be evaluated
-conditional on the response variable of interest.
-SHAP values were calculated on trained models
-using the genotype matrix as input,
-attributing predictive signal to individual loci
-while accounting for nonlinear interactions among sites.
+To quantify how much each SNP contributes to \ecolocator's predictions,
+we compute SHAP values \citep{lundberg_shap_2017},
+which divide a prediction among the input SNPs
+according to each SNP's average marginal contribution.
+We estimate them by expected gradients,
+the method of \texttt{GradientExplainer} in the \texttt{SHAP} Python package
+(\texttt{v.$\geq$0.47.0}),
+against a background of 100 randomly chosen training individuals,
+with 200 draws per individual.
+Attributions are computed separately for each prediction target
+(longitude, latitude, and each environmental covariate).
+For a covariate, the SHAP value of each SNP splits into two parts that sum to it:
+a part through the SNP's polygenic score
+(the score itself and the correction head's use of it)
+and a part through the predicted location
+(the trunk and location head; \Cref{fig:architecture}).
+We report the location part as a share of the total attribution,
+the location share.
 To complement SHAP-based attribution
 and assess the robustness of inferred signals,
 we performed a series of permutation-based sensitivity analyses,
@@ -924,7 +928,7 @@ providing an interpretable link between model predictions,
 genetic architecture, and simulated evolutionary processes.
 Feature attribution analyses were performed separately
 for each simulation regime,
-allowing us to assess how the recovery of adaptive loci
+allowing us to assess how the attribution of QTL and neutral sites
 depends on the underlying evolutionary scenario.
 
 \subsection{Location-corrected GEA}
