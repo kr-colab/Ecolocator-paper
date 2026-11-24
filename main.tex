@@ -373,81 +373,127 @@ for predicting the geographic origin and climate of origin
 of individual genotypes, accessible via both a command-line 
 interface and a programmatic Python API.
 \footnote{Source code, installation instructions, and vignettes are available at \url{https://github.com/kr-colab/ecolocator} and \url{https://ecolocator.readthedocs.io/en/latest/}.}
-\ecolocator does not depend on fixed assumptions about allele--environment relationships,
-but learns directly from high-dimensional genomic
-and environmental data (\Cref{fig:architecture}).
-By jointly predicting location and environmental variables,
+Rather than testing loci one at a time
+or requiring a prespecified model of selection,
+\ecolocator learns from all SNPs jointly,
+using high-dimensional genomic and environmental data (\Cref{fig:architecture}).
+By predicting location and environmental variables in a single model,
 it captures both spatial genetic structure
-and signals of local adaptation,
+and environment-associated genomic variation,
 providing a scalable, biologically informed approach
 for studying complex evolutionary patterns.
 Both the CLI and Python API accept standard genotype formats 
 (VCF, Zarr, tab-delimited matrices) as input,
 facilitating integration into existing 
-genomic workflows whether scripting interactively or from the command line.
+genomic workflows, whether working in Python or from the command line.
+
+% TODO (JR): when the genomic offset / GEA sections are written, add one
+% clause to this overview naming the two extra capabilities, e.g.
+% "...and also estimates genomic offsets to target environments and runs
+% a location-corrected genotype--environment association (GEA) scan."
+% - crossref new gea sections once theyare there
 
 \subsection{Preprocessing}
 
 \ecolocator converts genomic data from VCF, Zarr,
 and tab-delimited matrix formats
-into vectors of minor allele counts per individual
+into the number of copies of the alternate allele (0, 1, or 2)
+carried by each individual at each site
 using the scikit-allel \citep{scikit_allel_v1.3.8} and NumPy \citep{harris_array_2020} libraries.
 Missing genotypes are imputed by drawing alleles
 from a binomial distribution parameterized
-by the site's allele frequency,
+by the site's alternate allele frequency,
 an approximation that preserves expected variation
 while minimizing bias.
-Sites can be filtered by a minor allele count threshold
-to reduce noise from rare variants
+Only biallelic sites are retained,
+and sites can be further filtered by a minor allele count threshold
+(default 2) to reduce noise from rare variants
 that contribute little predictive signal.
-Geographic coordinates are normalized to zero mean and unit variance,
-and environmental covariates are standardized similarly
-prior to training.
+Geographic coordinates and environmental covariates are standardized
+to zero mean and unit variance prior to training.
+Covariates can optionally be log-transformed before standardization,
+and predictions are back-transformed to the original scale.
 
 \subsection{Model architecture}
 
-\ecolocator employs a multilayer perceptron with a shared trunk 
-and two task-specific output heads, trained under a supervised 
-learning framework on labeled datasets of genotypes paired with 
-known geographic coordinates and climate variables. Input genotypes 
-pass through a batch normalization layer before entering the shared 
-trunk, which consists of dense layers with ELU activations and a 
-central dropout layer for regularization. The trunk branches into 
-two heads --- one predicting 2D geographic coordinates (i.e., latitude and longitude), one predicting 
-environmental covariates --- each implemented as a small two-layer subnetwork. 
-The network is optimized using the Adam optimizer with a custom multitask 
-loss function, combining mean Euclidean distance on the standardized 
-latitude and longitude for geographic 
-prediction and MSE on the standardized environmental covariates, each scaled by an 
-independently specified weight. Concretely, the loss function is:
+\ecolocator is a neural network trained under a supervised learning
+framework on labeled datasets of genotypes paired with known geographic
+coordinates and climate variables (\Cref{fig:architecture}). It has a
+location route and, for each environmental covariate, a covariate route.
+Input genotypes are first standardized per SNP using the mean and standard deviation of
+the training and validation samples. For location, the standardized genotypes pass through a trunk of dense
+layers with ELU activations, which feeds a linear head predicting 2D
+geographic coordinates (i.e., latitude and longitude); during training,
+dropout is applied to the trunk's input and after each hidden layer. 
+For each environmental covariate $j$, a polygenic score $s_j$ is
+a weighted sum of all standardized SNPs, with weights $\beta_j$ and no
+intercept, and a small correction head computes a correction $h_j$ from
+$s_j$ and the predicted location; the predicted covariate is their sum,
+$\hat{z}_{j} = s_{j} + h_{j}$. During training, the predicted location
+enters each correction head through a gradient stop, so the covariate loss
+does not update the trunk or location head; at prediction and in feature
+attribution, gradients pass through it normally. With the two routes kept separate this way,
+the model captures both neutral spatial structure (in the trunk)
+and environment-associated genomic variation (in the polygenic scores). 
+The network is optimized using the Adam optimizer with a custom multitask loss function,
+combining mean Euclidean distance on the standardized latitude and longitude for
+geographic prediction and mean squared error (MSE) on the standardized environmental covariates,
+each scaled by an independently specified weight, plus $L_2$ penalties on
+the network weights. Concretely, the loss function is:
 \begin{equation} \label{eq:1}
-    \mathcal{L} = w_{\text{loc}} \left( \frac{1}{n} \sum_{i=1}^{n}
+\begin{split}
+    \mathcal{L} &= w_{\text{loc}} \left( \frac{1}{n} \sum_{i=1}^{n}
     \sqrt{(\hat{x}_i - x_i)^2 + (\hat{y}_i - y_i)^2} \right)
     + \, w_{\text{env}} \left( \frac{1}{np} \sum_{i=1}^{n} \sum_{j=1}^{p}
-    (\hat{z}_{ij} - z_{ij})^2 \right)
+    (\hat{z}_{ij} - z_{ij})^2 \right) \\
+    &\quad + \lambda_{\text{loc}} \|\Theta_{\text{loc}}\|_F^2
+    + \lambda_{\text{env}} \sum_{j=1}^{p} \|\Theta_{\text{env},j}\|_F^2
+    + \frac{\lambda_{\text{score}}}{p} \sum_{j=1}^{p} \|\beta_j\|_2^2
+\end{split}
 \end{equation}
 where $n$ is the number of training samples, $p$ is the number of environmental
 covariates, $x_i$ and $y_i$ are the true longitude and latitude of sample $i$,
 $\hat{x}_i$ and $\hat{y}_i$ are the predicted coordinates, $z_{ij}$ is the true
-value of covariate $j$ for sample $i$, $\hat{z}_{ij}$ is the predicted value,
-and $w_{\text{loc}}, w_{\text{env}} \geq 0$ are loss
-weights (both defaulting to 1.0, see \Cref{fig:loss-weight}).
-The network is trained using a standard validation scheme in which a user-specified 
-fraction of samples (default 0.9) is used for model fitting, while the remaining fraction is 
-held out for validation, enabling convergence monitoring, early stopping, 
-and adaptive learning rate reduction to prevent overfitting. 
-By explicitly coupling geographic and climatic inference, the model captures 
-both neutral spatial structure and environment-associated genomic variation.
+value of covariate $j$ for sample $i$, $\hat{z}_{ij}$ is its predicted value,
+and $w_{\text{loc}}, w_{\text{env}} \geq 0$ are loss weights (both defaulting
+to 1.0, see \Cref{fig:loss-weight}).
+The last three terms are $L_2$ penalties on the network weights:
+$\Theta_{\text{loc}}$ is the set of weight matrices in the trunk and location
+head, $\Theta_{\text{env},j}$ is the set in covariate $j$'s correction head,
+$\beta_j$ is the vector of polygenic-score weights for covariate $j$ (one per
+SNP), and $\|\cdot\|_F^2$ and $\|\cdot\|_2^2$ denote the sum of squared weights.
+$\lambda_{\text{loc}}$ and $\lambda_{\text{env}}$ are a single weight-decay rate
+(default $2 \times 10^{-4}$) multiplied by $w_{\text{loc}}$ and $w_{\text{env}}$,
+and $\lambda_{\text{score}}$ is the polygenic-score penalty multiplied by
+$w_{\text{env}}$, so that the loss weights set only the balance between
+location and covariates, not the strength of regularization. Because the
+covariate term weights each covariate's error by $1/p$, the score penalty is
+divided by $p$ as well, which keeps its strength relative to that error the
+same for any number of covariates.
+
+The network is trained using a standard validation scheme in which a user-specified
+fraction of samples (default 0.9) is used for model fitting, while the remaining fraction is
+held out for validation, enabling convergence monitoring, early stopping,
+and adaptive learning rate reduction to prevent overfitting.
+The held-out fraction also selects the polygenic-score penalty: the network
+is fitted once for each candidate value (by default 20, 60, 200, and 600),
+and the fit with the lowest covariate validation loss is kept.
 
 
 \begin{figure}[H]
-    \adjustimage{width=1.1\textwidth,center}{figures/EcolocatorARC.pdf}
-    \caption{\ecolocator architecture. \textbf{Panel A} shows the training regime,
-    with the inputs traversing the network in a supervised fashion; network weights 
-    are updated through backpropagation until predictions are optimized toward the
-    true value, with the process shown here in blue. Once trained, \ecolocator enters the prediction
-    step, shown here in \textbf{Panel B}. Given genotypes alone, the trained network
-    jointly predicts climate of origin and geographic location, shown in yellow. }
+    \adjustimage{width=1.1\textwidth,center}{figures/ELARC_v2.pdf}
+    \caption{\ecolocator architecture. \textbf{Panel A} shows training (blue).
+    Standardized allele counts follow two routes. A trunk of hidden layers,
+    with dropout (dashed boxes), predicts geographic coordinates ($x$, $y$) through
+    the location head. For each environmental covariate $j$ (stacked panels), a
+    polygenic score $s_j$, the sum of all SNPs weighted by $\beta_j$, is added to a
+    correction $h_j$ computed from $s_j$ and the predicted location, giving the
+    predicted covariate $\hat{z}_j = s_j + h_j$. A gradient stop on the predicted
+    location means each loss trains only its own route (dashed blue arrows): the
+    location loss updates the trunk and location head, and the covariate loss
+    updates $\beta_j$ and the correction head (\Cref{eq:1}). \textbf{Panel B} shows
+    prediction (yellow): the trained network predicts
+    geographic location and climate of origin from genotypes alone.}
     \label{fig:architecture}
 \end{figure}
 
@@ -463,12 +509,15 @@ left blank.
 \item Train the model using \texttt{ecolocator train} (or the Python API), 
 specifying the genotype file, sample metadata, and an output directory. 
 The model is fit to jointly predict geographic origin and environmental 
-covariates, with early stopping and adaptive learning rate reduction applied 
+covariates, with early stopping, adaptive learning rate reduction, and
+selection of the polygenic-score penalty on held-out samples applied 
 automatically.
 
 \item Evaluate model performance using \texttt{ecolocator loo}, 
 which iteratively holds out each sample with known coordinates, trains 
 on the remainder, and predicts the held-out individual (leave-one-out cross-validation).
+Because each fold refits the model once per candidate penalty, a run can be
+split across jobs, or the penalty fixed to a single value to reduce cost.
 The resulting predictions can be compared against true values to assess spatial and 
 environmental accuracy before applying the model to unknown samples.
 
@@ -477,11 +526,24 @@ with unknown locations using \texttt{ecolocator predict}, providing the
 saved model directory and a genotype file containing the target samples.
 
 \item (\textbf{Optional}) Quantify per-SNP importance for predicted samples 
-using \texttt{ecolocator attribute}, which applies SHAP values to 
+using \texttt{ecolocator attribute}, which computes SHAP values to 
 identify loci driving each prediction.
 \end{enumerate}
 
-The predicted coordinates and environmental values from steps 2--4 provide 
+% TODO (JR): add optional steps for the two CLI commands not yet
+% covered here, once the genomic offset section is written:
+%   - ecolocator offset: genomic offsets of samples to target sites
+%     (common gardens, future climates); covariates weighted by
+%     env_weights_ / env_mse_ from cross-fitting. Cite the offset
+%     section; mention the two cross-fit caveats there, not here.
+%   - ecolocator gea: location-corrected GEA, testing each SNP against
+%     each environmental variable with a spline of the predicted location
+%     as the population-structure correction.
+%   Also: mention by_path SHAP (score vs. location path) in step 5 or in
+%   Feature attribution, and update "steps 3--4" / "step 5" in the closing
+%   paragraph if the numbering changes.
+
+The predicted coordinates and environmental values from steps 3--4 provide 
 continuous estimates of geographic and climatic origin, and SHAP attributions 
 from step 5 can be used to identify loci contributing most strongly to each prediction.
 More details are given below. 
