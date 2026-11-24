@@ -103,7 +103,93 @@ A natural extension of this method is to predicting maladaptation and I think th
 The simulations were a little under described. I couldn't tell from the Methods section what the range of population sizes of the continuous space simulations were. What was the mutation rate? What was the carrying capacity per unit area? I took a look at the code on the gihub (which is nicely annotated by the way) it seems like it may have been K=100 per unit area. I ran your simulation to see the size and it hovered at around 2500 for the whole population. That's pretty small compared to the discrete ones. I'm not too worried about that contrast, but I do think that the total mutation rate is pretty important. Sakamoto et al (2025 - \url{https://doi.org/10.1093/genetics/iyae165}) showed that for a given pattern of population structure, there is a critical mutation rate above which locally adaptive alleles are not expected to be maintained over long periods of time. My suggestion is to identify that critical mutation rate w.r.t. your simulations and run some simulations in the many alleles of small-effect size range. Basically, how well does EcoLocator work in the case that we know is extremely difficult to characterise with GEA? It is also the case that when selective pressures and geographical signatures are colinear that population structure is difficult to separate from local adaptation. The authors do go into this, if their simulations are restricted to parameter ranges that result in local adaptation by loci that are maintained over the long-term, there are no insights into the small effect range.
 \end{point}
 
-\reply{TODO}
+\reply{We thank the reviewer for this point. We added the missing simulation
+details to the Methods \revref, and we ran a new series of
+simulations across the threshold of \citet{sakamoto_mutation_2024},
+with the results in \Cref{tab:polygenicity}.
+
+\textit{Simulation details.} The carrying capacity is $K = 100$ individuals
+per unit area on a $5 \times 5$ landscape \llname{simK}, so the landscape holds about
+2,500 individuals at most. Selection and dispersal keep the population
+below this number: at the end of the steady-state runs it held 740--1,740
+individuals per condition (means), fewer with stronger selection and with
+wider dispersal \llname{simpopsize}. We sample every individual.
+QTL mutations arise only inside the QTL windows, at $10^{-8}$ per site per
+gamete; in the main architecture the target is 200~kb, so
+$U = 2\times10^{-3}$ per gamete. QTL effects are drawn from a normal
+distribution with SD 0.05, and the local optima range from $-1$ to 1.
+Neutral mutations are added after the simulation, so that the total
+mutation rate is $2\times10^{-8}$ per site, uniform along the 1~Mb
+chromosome. The recombination rate is $10^{-6}$ per site, so the
+chromosome is 1 Morgan long. All runs last 200,000 ticks \llname{simrunlength}, 2.5 to 3.3 times
+the median time to coalescence in long runs with $\sigma_K = 0.5$
+(\Cref{tab:burnin}). With stronger selection, fewer runs had coalesced:
+with $\sigma_K = 0.3$, 99\% of the genome had coalesced by the end of the
+run in 36--93\% of the replicates, so in those runs part of the genealogy
+still comes from recapitation.
+
+\textit{Where our simulations sit relative to the threshold.} In the
+two-population model of Sakamoto et al., the threshold is
+$10^{-3}$--$10^{-2}$ per trait. It depends mostly on the SD of mutational
+effects in units of the difference between the optima. Our SD of 0.05 is
+about 0.025 in their units if we scale it by the full range of optima
+(2), and about 0.12 if we scale it by the mean difference between
+neighboring cells of our maps (0.43). This puts the threshold at about
+$10^{-3}$--$5\times10^{-3}$, and our main architecture
+($U = 2\times10^{-3}$) in this range. The conversion is rough, so we
+located the transition in our own simulations.
+
+To go across the threshold, we ran a new series of simulations. It keeps
+the effect distribution (SD 0.05) and the per-site QTL mutation rate
+($10^{-8}$) of the main simulations, and increases $U$ only through the
+size of the QTL target: 20~kb, 200~kb, 500~kb, and 1~Mb, so
+$U = 2\times10^{-4}$, $2\times10^{-3}$, $5\times10^{-3}$, and $10^{-2}$ (50
+replicates each). Our model has continuous space and no single locus of
+large effect, so we found the transition in our own runs with a version of
+their diagnostic: the stability, over time, of the loci that carry local
+adaptation. For this we used each
+allele's contribution to local adaptation, as the reviewer suggests in
+point \textit{1.2} \citep{booker_structure_2024}. From tick
+100,000 to tick 198,000, the longest time that a locus stayed among the
+loci that carry half of the local adaptation ($T^*$) was 0.94, 0.89, 0.78,
+and 0.57 of the period, from the smallest $U$ to the largest. At the end,
+the share of local adaptation from sites that already segregated at tick
+100,000 was 0.80, 0.32, 0.14, and 0.06. The transition from stable to
+transient architectures thus lies between $U = 2\times10^{-3}$ and
+$10^{-2}$ in our model.
+
+\textit{How \ecolocator works across the transition.}
+\begin{itemize}
+\item The prediction of the environment does not change across the
+  transition: covariate $R^2$ is 0.69--0.71 at every $U$, and location
+  $R^2$ 0.91--0.92.
+\item Locus discovery weakens across the transition for every method. For
+  windows with a major QTL, the power of the location-corrected GEA at
+  $q < 0.05$ is 0.98 and 0.89 below the transition and 0.50 and 0.14
+  above it, and that of LFMM2 ($K = 5$) falls from 0.99 to 0.08. WZA
+  finds few of these windows at any $U$ (power at most 0.14), and the
+  top-candidate method few above $U = 2\times10^{-4}$ (at most 0.25).
+\item The SHAP attribution still ranks the largest contributors to local
+  adaptation slightly higher than the GEAs above the transition
+  (window-level AUC-PR for major QTL: 0.68 and 0.58 at
+  $U = 5\times10^{-3}$ and $10^{-2}$, against 0.63 and 0.52 for the
+  corrected GEA). This shows that the prediction draws on the QTL. We do
+  not use the attribution to find loci, because it has no null
+  distribution: in new simulations without local adaptation, the largest
+  attribution is still 3.9--5.2 times the median, and these ratios overlap
+  with those of the runs with local adaptation, while the
+  location-corrected GEA finds a false window in at most 8\% of the
+  replicates (\Cref{tab:null}).
+\end{itemize}
+
+\textit{Collinear environment and geography.} We added maps on which the
+environment is a planar gradient, and thus collinear with location
+(\Cref{tab:spatial}). There, \ecolocator predicts the
+environment almost entirely through the predicted location (97--98\% of
+the attribution goes through that path), and the location-corrected GEA
+loses most of its signal: power 0.07 at $\sigma_D = 0.1$, against 0.33
+for LFMM2 ($K = 5$). We now state this limit in the Discussion
+\llname{gradientlimit}.}
 
 % Reviewer 1 point #6
 \begin{point}{} % 100th percentile seed-zone range is too generous
