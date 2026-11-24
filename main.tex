@@ -307,23 +307,32 @@ neutral spatial structure and adaptive environmental associations at the same ti
 Here we introduce \ecolocator,
 a deep neural network that extends \texttt{Locator}
 by jointly predicting geographic location and climate of origin from genomic data.
-Trained on georeferenced genotypes paired
-with historical climate data,
-the model learns multilocus associations
-with both geographic position and environmental gradients,
-so that it can infer climate of origin directly from genotype
-when allele frequencies covary with climate.
-We pair the model with a feature attribution method,
-SHapley Additive exPlanations
-(\texttt{SHAP}) \citep{lundberg_shap_2017},
-to see which input SNPs each prediction depends on.
-Because attribution ranks SNPs relative to one another,
-some SNPs will always rank highest;
-we therefore treat high-attribution SNPs as candidate loci
-for adaptive differentiation rather than as evidence of it\revpoint{1}{16}.
-We test \ecolocator on simulations to find out
-where it works well and where it does not,
-then apply it to an empirical dataset of coastal \dfir
+Trained on georeferenced genotypes paired with climate data,
+the model predicts both where an individual comes from
+and which environment it is adapted to.
+Because it predicts both, it can separate two signals.
+Part of the predicted environment follows only from the predicted location,
+that is, from population structure.
+The rest is environmental signal in the genotype beyond its location,
+which is the signal that local adaptation leaves.
+Our aim is to measure this signal of local adaptation
+and to use it at two scales\revpoint{1}{1}.
+For individuals and populations,
+it gives the climate an individual is adapted to,
+and a genomic offset:
+the distance between that climate and a new site,
+which predicts maladaptation after a move or a change in climate.
+For loci, the same separation gives
+a genotype--environment association (GEA) test
+that uses \ecolocator's predicted location
+as the covariate for population structure.
+Both come from the same fitted model.
+We test \ecolocator in simulations
+against GEA methods (LFMM2, \texttt{WZA}, and the top-candidate method)
+and against genomic offset methods
+(gradient forest, RDA, and the LFMM2 genetic gap),
+to find out where it works and where it does not,
+and then apply it to coastal \dfir
 (\textit{Pseudotsuga menziesii} var.\ \textit{menziesii}).
 
 Coastal \dfir is a member of the pine family
@@ -1455,7 +1464,7 @@ went through the predicted location (\Cref{tab:supptable2}).
 The share rose with wider dispersal and,
 at $\sigma_D = 0.3$ and 0.5, with weaker selection.
 On the gradient maps, 97--98\% did (\Cref{tab:spatial}).
-The attribution has no null distribution.
+The attribution has no null distribution.\revpoint{1}{16}
 Without local adaptation,
 a few SNPs still received attributions far above the median
 (the largest 3.9--5.2 times the median),
