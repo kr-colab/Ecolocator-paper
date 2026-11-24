@@ -2195,12 +2195,15 @@ and uncertainty in historical source records \citep{rehmann2024evaluating}.
 
 A key strength of \ecolocator is its multitask design, 
 which simultaneously models geographic and environmental variation. 
-This joint framework allows the model to learn both shared and target-specific 
-components of genomic variation and, when sufficient information is present in the 
-genotype data, to distinguish signals associated with geographic structure from those 
-associated with environmental variation. This design also bears on a well-documented
-challenge of conventional GEA methods. When population structure aligns with
-environmental gradients, as it often does in nature, methods that correct for
+Each environmental covariate gets its own polygenic score of all SNPs,
+while the predicted location, trained only on the locations, is shared by all of them.
+The attribution of each prediction therefore splits into a part through the score
+and a part through the predicted location
+(the location share; Methods, \textit{Feature attribution}),
+which shows how much of the prediction rests on geographic structure.
+This design also bears on a well-documented challenge of conventional GEA methods. 
+When population structure aligns with environmental gradients, 
+as it often does in nature, methods that correct for
 structure can inadvertently remove true adaptive signal along with neutral
 confounders \citep{lotterhos_recombination_2019, booker_wza_2024}.
 \ecolocator takes a different route: rather than regressing geographic structure
