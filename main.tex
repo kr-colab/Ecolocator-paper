@@ -421,7 +421,7 @@ and predictions are back-transformed to the original scale.
 where an individual comes from,
 and the environment it is adapted to (\Cref{fig:architecture}).\llabel{arch}
 It does this with two routes.
-The location route is a neural network, as in \texttt{Locator}:
+The location route is a neural network, as in \texttt{Locator} \citep{battey_predicting_2020}:
 the standardized genotypes pass through four hidden layers
 of 128 units with ELU activations,
 and a final linear layer gives the coordinates $(x, y)$.
@@ -437,11 +437,11 @@ adds a term $h_j$ computed from $s_j$ and the predicted location,
 so that the predicted covariate is $\hat{e}_j = s_j + h_j$.
 Without the correction head,
 the covariate route would be ridge regression of the covariate on all SNPs,
-as in RR-BLUP.
+as in RR-BLUP \citep{meuwissen_prediction_2001, endelman_ridge_2011}.
 
 The predicted location enters the correction head through a gradient stop:
 during training, the covariate error cannot change the location route.
-The location route therefore learns only from the locations,
+The location route is therefore trained only by the location error,
 and its prediction describes population structure.
 This lets the predicted location serve as the covariate for structure
 in the location-corrected GEA (Methods, \textit{Location-corrected GEA}),
@@ -451,7 +451,7 @@ through the score and a part through the predicted location
 At prediction and in feature attribution, the gradient stop has no effect.
 
 Each SNP is standardized with the mean and standard deviation
-of the samples used to fit the model.
+of the training and validation samples.
 Locations and covariates are standardized as described above
 (\textit{Preprocessing}).
 The loss is
@@ -463,7 +463,7 @@ The loss is
   (\hat{e}_{ij} - e_{ij})^2 \\
 &\quad + w_{\text{loc}}\, \omega\, \|W_{\text{loc}}\|^2
   + w_{\text{env}}\, \omega \sum_{j=1}^{p} \|W_{j}\|^2
-  + w_{\text{env}}\, \frac{\lambda}{p} \sum_{j=1}^{p} \|\beta_j\|^2,
+  + w_{\text{env}}\, \frac{\lambda_{\text{score}}}{p} \sum_{j=1}^{p} \|\beta_j\|^2,
 \end{split}
 \end{equation}
 where $n$ is the number of samples and $p$ the number of covariates,
@@ -478,7 +478,8 @@ of the location route ($W_{\text{loc}}$),
 of the correction head of covariate $j$ ($W_j$),
 and of the polygenic score of covariate $j$ ($\beta_j$).
 The weight decay is $\omega = 2 \times 10^{-4}$,
-and $\lambda$ is the score penalty.
+and $\lambda_{\text{score}}$ is the score penalty,
+divided by $p$ because the covariate error is averaged over the $p$ covariates.
 The loss weights $w_{\text{loc}}$ and $w_{\text{env}}$ default to 1.
 
 We train with Adam on mini-batches of 32 samples
@@ -488,12 +489,17 @@ The learning rate is halved after 16 epochs
 without improvement of the validation loss,
 and training stops after 100 such epochs,
 keeping the weights of the best epoch.
-The network is fitted once for each value of $\lambda$
+The network is fitted once for each value of $\lambda_{\text{score}}$
 (by default 20, 60, 200, and 600),
 and the fit with the lowest covariate error on the validation samples is kept.
-Because the two routes are trained separately,
-the loss weights matter only through the validation loss,
+Since the two routes are trained separately,
+and Adam's steps hardly depend on the scale of a loss,
+the loss weights matter mainly through the validation loss,
 which decides when the learning rate drops and when training stops.\llabel{lossweights}
+Because the validation loss includes the covariate error,
+the environmental values do reach the location route,
+but only through these two decisions and the choice of $\lambda_{\text{score}}$,
+and they never train it.
 
 
 \begin{figure}[H]
