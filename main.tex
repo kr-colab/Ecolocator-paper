@@ -452,12 +452,12 @@ the network weights. Concretely, the loss function is:
     + \frac{\lambda_{\text{score}}}{p} \sum_{j=1}^{p} \|\beta_j\|_2^2
 \end{split}
 \end{equation}
-where $n$ is the number of training samples, $p$ is the number of environmental
-covariates, $x_i$ and $y_i$ are the true longitude and latitude of sample $i$,
-$\hat{x}_i$ and $\hat{y}_i$ are the predicted coordinates, $z_{ij}$ is the true
+where $n$ is the number of samples, $p$ is the number of environmental
+covariates, $x_i$ and $y_i$ are the standardized true longitude and latitude of sample $i$,
+$\hat{x}_i$ and $\hat{y}_i$ are the predicted coordinates, $z_{ij}$ is the standardized true
 value of covariate $j$ for sample $i$, $\hat{z}_{ij}$ is its predicted value,
-and $w_{\text{loc}}, w_{\text{env}} \geq 0$ are loss weights (both defaulting
-to 1.0, see \Cref{fig:loss-weight}).
+and $w_{\text{loc}}, w_{\text{env}} > 0$ are loss weights (both defaulting
+to 1.0).
 The last three terms are $L_2$ penalties on the network weights:
 $\Theta_{\text{loc}}$ is the set of weight matrices in the trunk and location
 head, $\Theta_{\text{env},j}$ is the set in covariate $j$'s correction head,
@@ -466,8 +466,9 @@ SNP), and $\|\cdot\|_F^2$ and $\|\cdot\|_2^2$ denote the sum of squared weights.
 $\lambda_{\text{loc}}$ and $\lambda_{\text{env}}$ are a single weight-decay rate
 (default $2 \times 10^{-4}$) multiplied by $w_{\text{loc}}$ and $w_{\text{env}}$,
 and $\lambda_{\text{score}}$ is the polygenic-score penalty multiplied by
-$w_{\text{env}}$, so that the loss weights set only the balance between
-location and covariates, not the strength of regularization. Because the
+$w_{\text{env}}$, so each loss weight scales its route's error and penalties
+together and leaves the strength of regularization relative to that error
+unchanged. Because the
 covariate term weights each covariate's error by $1/p$, the score penalty is
 divided by $p$ as well, which keeps its strength relative to that error the
 same for any number of covariates.
@@ -476,9 +477,17 @@ The network is trained using a standard validation scheme in which a user-specif
 fraction of samples (default 0.9) is used for model fitting, while the remaining fraction is
 held out for validation, enabling convergence monitoring, early stopping,
 and adaptive learning rate reduction to prevent overfitting.
+Because each network weight is trained by only one route's terms,
+and Adam's updates are largely insensitive to a constant rescaling of a
+parameter's gradients, the loss weights have little effect on how either
+route is trained. They act instead through the validation loss,
+the loss of \Cref{eq:1} evaluated on the held-out samples,
+which decides when the learning rate is reduced
+and which epoch early stopping keeps for both routes.
 The held-out fraction also selects the polygenic-score penalty: the network
 is fitted once for each candidate value (by default 20, 60, 200, and 600),
-and the fit with the lowest covariate validation loss is kept.
+and the fit with the lowest covariate validation MSE
+at the epoch early stopping keeps is used.
 
 
 \begin{figure}[H]
@@ -2366,46 +2375,6 @@ USDA Forest Service Award RDBIL-ERR16 to RCC.
 \newpage
 \beginsupplement
 \section*{Supplementary Materials}
-
-%%%%%% Supplemental Figure 1 %%%%%%
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[t]{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/suppfig1_lossweight_env.png}
-        \caption{}
-        \label{fig:loss-weight-env}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/suppfig1_lossweight_loc.png}
-        \caption{}
-        \label{fig:loss-weight-loc}
-    \end{subfigure}
-    \caption{\textbf{Loss weight cross-validation.}
-    To determine the default loss weight value for location and
-    environmental prediction, we tested sliding this value at the command
-    line for each output task (location prediction and environmental
-    covariate prediction) on the empirical \dfir{} data, while holding
-    the other value at 1. In panel \textbf{a)}, we see that when the loss weight is
-    held at a value of 0 for environmental covariate prediction, \ecolocator
-    essentially ``focuses'' entirely on the location prediction task,
-    reflected in the low $R^2$ scores for all three environmental targets and
-    high prediction scores for location. We see the same effect in the
-    opposite direction in panel \textbf{b)}, where we held the loss weight of the
-    environmental output head at 1 and scaled the loss weight for location
-    prediction from 0--1. Again we see that when loss weight for location
-    prediction is held at 0, the model prioritizes predicting on
-    environmental covariates. Reassuringly, this analysis also demonstrates
-    that \ecolocator recovers the true values for environmental covariates
-    without over-reliance on the spatial information housed in the location
-    values. Lastly, we see negligible effects on prediction performance in
-    one output or the other when one output head is essentially turned
-    off/down. Because of this, we hold the default value for both prediction
-    tasks at 1.0.}
-    \label{fig:loss-weight}
-\end{figure}
 
 %%%%%% Supplemental Figure 2 %%%%%%
 \begin{figure}[H]
