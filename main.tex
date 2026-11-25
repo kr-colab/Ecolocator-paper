@@ -1018,9 +1018,13 @@ we test only SNPs with a minor-allele frequency of at least 0.05.
 The predicted location is what the genotypes say
 about where an individual comes from,
 so it describes population structure, the confounder.
-The network learns the predicted location without the environmental values,
+The environmental values do not train the predicted location,
 because the gradient stop lets only the location loss train the trunk and location head
 (\textit{Model architecture}; \Cref{fig:architecture}).
+They affect it only through when training stops, when the learning rate is reduced,
+and which score-penalty fit is kept,
+and an individual's own environmental values never affect its predicted location,
+which comes from a model that did not see that individual.
 The true location also sets the environment,
 so a correction by the true location
 would also remove the signal of the environment.
