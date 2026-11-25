@@ -417,77 +417,83 @@ and predictions are back-transformed to the original scale.
 
 \subsection{Model architecture}
 
-\ecolocator is a neural network trained under a supervised learning
-framework on labeled datasets of genotypes paired with known geographic
-coordinates and climate variables (\Cref{fig:architecture}).\llabel{arch} It has a
-location route and, for each environmental covariate, a covariate route.
-Input genotypes are first standardized per SNP using the mean and standard deviation of
-the training and validation samples. For location, the standardized genotypes pass through a trunk of dense
-layers with ELU activations, which feeds a linear head predicting 2D
-geographic coordinates (i.e., latitude and longitude); during training,
-dropout is applied to the trunk's input and after each hidden layer. 
-For each environmental covariate $j$, a polygenic score $s_j$ is
-a weighted sum of all standardized SNPs, with weights $\beta_j$ and no
-intercept, and a small correction head computes a correction $h_j$ from
-$s_j$ and the predicted location; the predicted covariate is their sum,
-$\hat{z}_{j} = s_{j} + h_{j}$. During training, the predicted location
-enters each correction head through a gradient stop, so the covariate loss
-does not update the trunk or location head; at prediction and in feature
-attribution, gradients pass through it normally. With the two routes kept separate this way,
-the model captures both neutral spatial structure (in the trunk)
-and environment-associated genomic variation (in the polygenic scores). 
-The network is optimized using the Adam optimizer with a custom multitask loss function,
-combining mean Euclidean distance on the standardized latitude and longitude for
-geographic prediction and mean squared error (MSE) on the standardized environmental covariates,
-each scaled by an independently specified weight, plus $L_2$ penalties on
-the network weights. Concretely, the loss function is:
+\ecolocator predicts two things from the same genotypes:
+where an individual comes from,
+and the environment it is adapted to (\Cref{fig:architecture}).\llabel{arch}
+It does this with two routes.
+The location route is a neural network, as in \texttt{Locator}:
+the standardized genotypes pass through four hidden layers
+of 128 units with ELU activations,
+and a final linear layer gives the coordinates $(x, y)$.
+During training, dropout randomly sets a fraction of the values to zero
+(0.1 of the genotypes and 0.25 of the units after each hidden layer),
+which limits overfitting.
+The covariate route has, for each environmental covariate $j$,
+a polygenic score:
+a weighted sum of all standardized genotypes, $s_j = \sum_k \beta_{jk} g_k$,
+with no intercept and with a ridge penalty on the weights $\beta_j$.
+A small correction head (16 ELU units, then one linear unit)
+adds a term $h_j$ computed from $s_j$ and the predicted location,
+so that the predicted covariate is $\hat{e}_j = s_j + h_j$.
+Without the correction head,
+the covariate route would be ridge regression of the covariate on all SNPs,
+as in RR-BLUP.
+
+The predicted location enters the correction head through a gradient stop:
+during training, the covariate error cannot change the location route.
+The location route therefore learns only from the locations,
+and its prediction describes population structure.
+This lets the predicted location serve as the covariate for structure
+in the location-corrected GEA (Methods, \textit{Location-corrected GEA}),
+and it lets the attribution of each covariate split into a part
+through the score and a part through the predicted location
+(Methods, \textit{Feature attribution}).
+At prediction and in feature attribution, the gradient stop has no effect.
+
+Each SNP is standardized with the mean and standard deviation
+of the samples used to fit the model.
+Locations and covariates are standardized as described above
+(\textit{Preprocessing}).
+The loss is
 \begin{equation} \label{eq:1}
 \begin{split}
-    \mathcal{L} &= w_{\text{loc}} \left( \frac{1}{n} \sum_{i=1}^{n}
-    \sqrt{(\hat{x}_i - x_i)^2 + (\hat{y}_i - y_i)^2} \right)
-    + \, w_{\text{env}} \left( \frac{1}{np} \sum_{i=1}^{n} \sum_{j=1}^{p}
-    (\hat{z}_{ij} - z_{ij})^2 \right) \\
-    &\quad + \lambda_{\text{loc}} \|\Theta_{\text{loc}}\|_F^2
-    + \lambda_{\text{env}} \sum_{j=1}^{p} \|\Theta_{\text{env},j}\|_F^2
-    + \frac{\lambda_{\text{score}}}{p} \sum_{j=1}^{p} \|\beta_j\|_2^2
+\mathcal{L} &= w_{\text{loc}} \frac{1}{n} \sum_{i=1}^{n}
+  \sqrt{(\hat{x}_i - x_i)^2 + (\hat{y}_i - y_i)^2}
+  + w_{\text{env}} \frac{1}{np} \sum_{i=1}^{n} \sum_{j=1}^{p}
+  (\hat{e}_{ij} - e_{ij})^2 \\
+&\quad + w_{\text{loc}}\, \omega\, \|W_{\text{loc}}\|^2
+  + w_{\text{env}}\, \omega \sum_{j=1}^{p} \|W_{j}\|^2
+  + w_{\text{env}}\, \frac{\lambda}{p} \sum_{j=1}^{p} \|\beta_j\|^2,
 \end{split}
 \end{equation}
-where $n$ is the number of samples, $p$ is the number of environmental
-covariates, $x_i$ and $y_i$ are the standardized true longitude and latitude of sample $i$,
-$\hat{x}_i$ and $\hat{y}_i$ are the predicted coordinates, $z_{ij}$ is the standardized true
-value of covariate $j$ for sample $i$, $\hat{z}_{ij}$ is its predicted value,
-and $w_{\text{loc}}, w_{\text{env}} > 0$ are loss weights (both defaulting
-to 1.0).
-The last three terms are $L_2$ penalties on the network weights:
-$\Theta_{\text{loc}}$ is the set of weight matrices in the trunk and location
-head, $\Theta_{\text{env},j}$ is the set in covariate $j$'s correction head,
-$\beta_j$ is the vector of polygenic-score weights for covariate $j$ (one per
-SNP), and $\|\cdot\|_F^2$ and $\|\cdot\|_2^2$ denote the sum of squared weights.
-$\lambda_{\text{loc}}$ and $\lambda_{\text{env}}$ are a single weight-decay rate
-(default $2 \times 10^{-4}$) multiplied by $w_{\text{loc}}$ and $w_{\text{env}}$,
-and $\lambda_{\text{score}}$ is the polygenic-score penalty multiplied by
-$w_{\text{env}}$, so each loss weight scales its route's error and penalties
-together and leaves the strength of regularization relative to that error
-unchanged. Because the
-covariate term weights each covariate's error by $1/p$, the score penalty is
-divided by $p$ as well, which keeps its strength relative to that error the
-same for any number of covariates.
+where $n$ is the number of samples and $p$ the number of covariates,
+$(x_i, y_i)$ and $e_{ij}$ are the standardized true coordinates
+and covariates of sample $i$, and hats mark predictions.
+The first two terms are the errors:
+the mean distance between the predicted and the true location,
+and the mean squared error of the covariates.
+The other three are ridge penalties,
+each the sum of the squared weights
+of the location route ($W_{\text{loc}}$),
+of the correction head of covariate $j$ ($W_j$),
+and of the polygenic score of covariate $j$ ($\beta_j$).
+The weight decay is $\omega = 2 \times 10^{-4}$,
+and $\lambda$ is the score penalty.
+The loss weights $w_{\text{loc}}$ and $w_{\text{env}}$ default to 1.
 
-The network is trained using a standard validation scheme in which a user-specified
-fraction of samples (default 0.9) is used for model fitting, while the remaining fraction is
-held out for validation, enabling convergence monitoring, early stopping,
-and adaptive learning rate reduction to prevent overfitting.
-Because each network weight is trained by only one route's terms,
-and Adam's updates are largely insensitive to a constant rescaling of a
-parameter's gradients, the loss weights have little effect on how either
-route is trained.\llabel{lossweights} They act instead through the validation loss,
-the loss of \Cref{eq:1} evaluated on the held-out samples,
-which decides when the learning rate is reduced
-and which epoch early stopping keeps for both routes.
-The held-out fraction also selects the polygenic-score penalty: the network
-is fitted once for each candidate value (by default 20, 60, 200, and 600),
-and the fit with the lowest covariate validation MSE
-at the epoch early stopping keeps is used.
+We train with Adam on mini-batches of 32 samples
+for at most 5,000 epochs.
+A random 10\% of the samples is held out for validation.
+The learning rate is halved after 16 epochs
+without improvement of the validation loss,
+and training stops after 100 such epochs,
+keeping the weights of the best epoch.
+The network is fitted once for each value of $\lambda$
+(by default 20, 60, 200, and 600),
+and the fit with the lowest covariate error on the validation samples is kept.
+Because the two routes are trained separately,
+the loss weights matter only through the validation loss,
+which decides when the learning rate drops and when training stops.\llabel{lossweights}
 
 
 \begin{figure}[H]
