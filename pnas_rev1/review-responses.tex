@@ -126,7 +126,61 @@ Rodrigues et al present a novel machine learning method for analysing population
 Overall I liked the paper and think it has the potential to be a major contribution, but my sense is that it straddles a line between two conceptual goals. The first goal is to identify the genetic basis of local adaptation. The second is to determine the climate of origin of individuals - a clear extension of that would be to figure out how maladapted a population will become under a given pattern of environmental change. However, I don't think that the current version of the paper goes far enough on either of those. To make the method more compelling as a GEA approach - EcoLocater should be more fully compared with widely used GEA methods (LFMM is particularly widely used). The WZA is obviously fantastic, but it was designed for the analysis of allele frequqencies (e.g. from pooled sequencing), while the current method analyses genotypes. For climates of origin, the method proposed is akin to genomic offset analyses, but isn't really compared to them. Maybe the authors see this differently, but I think a really clear summary of their reasoning should be included in the paper at the very least. Ideally, the authors would compare their method with offset analyses (e.g. gradient forests) to show that it provides additional power, greater interpretability etc. Furthermore, I think to make the method more broadly impactful the parameters used in the simulations should be more fully justified and put into the context of empirical and theoretical population genetics of local adaptation. For example, what is the Fst observed across simulated populations? How do the functional mutation rates correspond to different expected distributions of effect size? Finally, the empirical analysis of Douglas-fir should be put into the context of previous work and could could be expanded on.
 \end{point}
 
-\reply{TODO}
+\reply{We thank the reviewer. We agree that the submitted manuscript
+straddled two goals and did not go far enough on either. The revision states
+one aim and tests it at both scales \revref.
+
+\ecolocator predicts where an individual comes from and which environment
+it is adapted to. The part of the predicted environment that does not follow
+from the predicted location is the signal of local adaptation. Population
+structure confounds the search for the genetic basis of local adaptation and
+also the prediction of maladaptation, so each needs this separation. We now
+use it for both, and we compare each use with the methods that the reviewer
+names.
+
+\textit{Maladaptation.} \ecolocator gives each individual a genomic offset:
+the distance between the climate it is adapted to and a new site. Each
+environmental variable is weighted by how much the genotype predicts it
+beyond location \textit{[Methods, offsets]}. We tested the offset in
+simulated common gardens in which three environmental variables besides the
+optimum are not under selection, and scored every offset against the true
+loss of fitness \textit{[Supplement, offsets]}. \ecolocator's offset
+correlated better with the loss of fitness than gradient forest and RDA did,
+by 0.07 to 0.15 in Spearman's $\rho$ across individuals. This held at
+moderate and weak population structure, on smoother maps, and at every level
+of polygenicity. Under the strongest structure ($\sigma_D = 0.1$), the LFMM2
+genetic gap correlated better. \ecolocator's offset also ranks individuals
+within a population, which an offset computed from the environment of origin
+cannot do. We apply the offset to coastal \dfir in our reply to point
+\textit{1.4}.
+
+\textit{Genetic basis.} As the reviewer suggests, we compared \ecolocator
+with LFMM2 (Methods, \textit{Comparing \ecolocator to other GEA methods}),
+and also with Kendall's $\tau_b$, WZA, and the top-candidate method. For WZA
+and the top-candidate method we followed the documented use of the script,
+and we added a version on the allele frequencies of sampled demes, the
+design WZA was built for (point \textit{1.9}). The location-corrected GEA
+ranks windows with a major QTL as well as LFMM2 with the better choice of
+$K$, and it needs no choice of $K$. It has the most power at $q < 0.05$ in 8
+of 11 conditions. Without local adaptation, it finds a false window in 0--8\% of
+replicates, against 19--23\% for WZA and 35--40\% for the top-candidate
+method (\Cref{tab:null}). Its limit is an environment collinear with
+location, where the correction also removes adaptive signal
+(\Cref{tab:spatial}; Discussion \llname{gradientlimit}). The SHAP
+attribution describes the prediction and is not a test (points
+\textit{1.2} and \textit{1.16}).
+
+\textit{Simulation parameters.} We now give the population sizes, mutation
+rates, and run lengths, and we relate the QTL mutation rate and effect sizes
+to the threshold for stable local adaptation of
+\citet{sakamoto_mutation_2024} (point \textit{1.5};
+\Cref{tab:polygenicity}). Mean pairwise F$_{ST}$ across sampled bins is
+0.15, 0.08, and 0.04 at $\sigma_D = 0.1$, 0.3, and 0.5 ($\sigma_K = 0.5$),
+and 0.02--0.33 across all conditions \textit{[Supplement, F$_{ST}$]}.
+% TODO: compare with F_ST values reported for natural populations, with a citation.
+
+\textit{\dfir context.} We placed our results next to earlier GEA and
+offset work in \dfir (points \textit{1.3} and \textit{1.7}).}
 
 % Reviewer 1 point #2
 \begin{point}{} % what counts as an adaptive allele; top 1% of SHAP
