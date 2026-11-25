@@ -62,6 +62,57 @@ Both viewers have important suggestions for improvement.
 \reply{TODO}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Changes not tied to one reviewer point. Replies can link here with
+% \hyperref[sec:additional]{Additional changes}.
+\section*{Additional changes:}
+\phantomsection\label{sec:additional}
+
+\noindent
+\textbf{Revised model architecture.}
+We revised the \ecolocator network \llname{arch} (\Cref{fig:architecture}).
+In the submitted version, a shared trunk of dense layers fed both a location head
+and a covariate head, so both predictions were learned from the same representation.
+In the revised model, location and environment follow separate routes.
+A trunk of dense layers and a location head predict geographic coordinates.
+For each environmental covariate, a polygenic score (a penalized weighted sum of all SNPs)
+is added to the output of a small correction head that reads the score and the predicted location.
+A gradient stop on the predicted location means the covariate loss trains
+only the scores and correction heads, and the location loss trains only the trunk
+and location head.
+This separation has two consequences that the revision uses throughout.
+First, the environmental values do not train the trunk.
+They affect it only through when training stops, when the learning rate is reduced,
+and which score-penalty fit is kept.
+In the location-corrected GEA that we add in this revision,
+each individual's predicted location comes from a model that did not see that individual,
+so its own environmental values never affect it.
+The predicted location therefore describes population structure
+and can serve as the GEA's structure covariate.
+Second, the SHAP attribution of each covariate splits into a part through the
+polygenic score (the score and the correction head's use of it)
+and a part through the predicted location,
+and we report the second part as the location share.
+Smaller changes to the trunk (per-SNP standardization in place of batch normalization,
+dropout on the input and after every hidden layer in place of a single central dropout layer,
+and $L_2$ penalties) are described in the Methods,
+which now also give the full loss, how the score penalty is chosen,
+and the SHAP estimator (expected gradients) with its settings.
+
+TODO: which results were recomputed with the revised model and how they changed
+(simulations; \dfir{} leave-one-out and attribution, rerun with \texttt{attribute --by-path}).
+
+\noindent
+\textbf{Loss-weight figure removed.}
+Figure S1 of the submission showed a trade-off between location and covariate
+prediction as the loss weights varied.
+Because the two routes of the revised model share no trained weights,
+the loss weights no longer trade one prediction against the other during training.
+They affect only which epoch early stopping keeps and when the learning rate is reduced
+\llname{lossweights}, so we removed the figure.
+The remaining supplementary figures are renumbered.
+Where a reviewer cites a figure by its submitted number, our reply gives the new one.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \reviewersection{1}
 
 \begin{itquote}
@@ -320,6 +371,9 @@ Significance statement and elsewhere - I don't see the greatest value of this ne
 A major challenge in population genomics has been and continues to be the ability to separate selectively neutral genomic signatures of demographic history and geographic location from evidence of local adaptation, as the two are often confounded. This manuscript expands on the well-cited machine learning model Locator (Battey et al. 2020), which predicts location of origin of samples based on genomic data, to include prediction of the environmental conditions that genotypes are adapted to. The expansion of Locator to EcoLocator can be seen by comparing Figure 1 to Figure 1 in Battey et al. 2020, both of which describe model architecture. The authors use both simulation modelling and a case study with Douglas-fir data to test the ability of EcoLocator to separate geographic origin from local adaptation. It is an interesting and novel way to tackle this challenge, and has considerable potential in my opinion. The manuscript is generally well written, figures are illustrative and explanatory, and this approach has considerable potential. However, there are holes that need to be filled before this will be suitable for PNAS. I am also on the fence about whether the expansion of Locator to EcoLocator is suitable for PNAS or is too incremental.
 \end{point}
 
+% When replying: R2 judged novelty by comparing our Fig. 1 with Locator's, and the
+% revised architecture no longer matches it. Link \hyperref[sec:additional]{Additional changes}
+% and \llname{arch} rather than re-describing the model.
 \reply{TODO}
 
 % Reviewer 2 point #5
