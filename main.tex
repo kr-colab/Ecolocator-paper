@@ -498,7 +498,7 @@ at the epoch early stopping keeps is used.
     the location head. For each environmental covariate $j$ (stacked panels), a
     polygenic score $s_j$, the sum of all SNPs weighted by $\beta_j$, is added to a
     correction $h_j$ computed from $s_j$ and the predicted location, giving the
-    predicted covariate $\hat{z}_j = s_j + h_j$. A gradient stop on the predicted
+    predicted covariate $\hat{e}_j = s_j + h_j$. A gradient stop on the predicted
     location means each loss trains only its own route (dashed blue arrows): the
     location loss updates the trunk and location head, and the covariate loss
     updates $\beta_j$ and the correction head (\Cref{eq:1}). \textbf{Panel B} shows
@@ -904,6 +904,11 @@ and a part through the predicted location
 (the trunk and location head; \Cref{fig:architecture}).
 We report the location part as a share of the total attribution,
 the location share.
+The attribution describes how \ecolocator predicts.
+It has no null distribution,
+and without local adaptation it still ranks a few SNPs far above the rest
+(\Cref{tab:null}), so we do not use it to find loci.
+We find loci with the location-corrected GEA.
 To complement SHAP-based attribution
 and assess the robustness of inferred signals,
 we performed a series of permutation-based sensitivity analyses,
@@ -1018,13 +1023,10 @@ we test only SNPs with a minor-allele frequency of at least 0.05.
 The predicted location is what the genotypes say
 about where an individual comes from,
 so it describes population structure, the confounder.
-The environmental values do not train the predicted location,
-because the gradient stop lets only the location loss train the trunk and location head
-(\textit{Model architecture}; \Cref{fig:architecture}).
-They affect it only through when training stops, when the learning rate is reduced,
-and which score-penalty fit is kept,
-and an individual's own environmental values never affect its predicted location,
-which comes from a model that did not see that individual.
+The gradient stop keeps the environmental values from training the trunk
+and location head (\textit{Model architecture}; \Cref{fig:architecture}),
+and each individual's predicted location comes from a model
+that did not see that individual.
 The true location also sets the environment,
 so a correction by the true location
 would also remove the signal of the environment.
@@ -2219,7 +2221,7 @@ When population structure aligns with environmental gradients,
 as it often does in nature, methods that correct for
 structure can inadvertently remove true adaptive signal along with neutral
 confounders \citep{lotterhos_recombination_2019, booker_wza_2024}.
-\ecolocator takes a different route: rather than regressing geographic structure
+\ecolocator's network takes a different route: rather than regressing geographic structure
 out, it models geographic and environmental variation as related but distinct
 prediction tasks. However, this does not resolve the confounding. When climate
 covaries with geography, non-causal but spatially structured loci can still
