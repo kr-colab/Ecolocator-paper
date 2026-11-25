@@ -1353,11 +1353,12 @@ was 0.90, 0.84, and 0.77 for architectures 1, 2, and 3
 Across the full grid of dispersal and selection it was 0.75--0.95.
 
 The attribution of each SNP splits into a part through the polygenic score
-and a part through the predicted location (\Cref{tab:spatial}).
-On the paper maps, 18--42\% of the attribution
-went through the predicted location,
-more with wider dispersal and weaker selection;
-on the gradient maps, 97--98\% did.
+and a part through the predicted location.
+On the paper maps, 17--42\% of the attribution
+went through the predicted location (\Cref{tab:supptable2}).
+The share rose with wider dispersal and,
+at $\sigma_D = 0.3$ and 0.5, with weaker selection.
+On the gradient maps, 97--98\% did (\Cref{tab:spatial}).
 The attribution has no null distribution.
 Without local adaptation,
 a few SNPs still received attributions far above the median
@@ -1438,9 +1439,14 @@ in every condition (AUC-PR within 0.03; 0.50--0.84),
 without a choice of $K$,
 and better than \texttt{WZA} (0.25--0.61)
 and the top-candidate method (0.50--0.74).
-At $q < 0.05$, it had the most power in 8 of the 11 conditions
-(0.11--0.63 for windows with any QTL),
-with a false-discovery rate of 0.08--0.28,
+At $q < 0.05$, it had the most power of all the methods
+except the uncorrected $\tau_b$
+in 8 of the 11 conditions of \Cref{tab:supptable2}
+(0.11--0.63 for windows with any QTL);
+in the other three, all at $\sigma_D = 0.1$
+($\sigma_K = 0.5$ with architectures 1 and 2, and $\sigma_K = 0.7$),
+LFMM2 with $K = 5$ had at most 0.02 more.
+The location-corrected GEA's false-discovery rate was 0.08--0.28,
 against 0.05--0.22 for LFMM2 with $K = 5$;
 its Simes window test lowered the false-discovery rate to 0.04--0.20.
 \texttt{WZA} and the top-candidate method found few windows
@@ -1455,6 +1461,11 @@ locus discovery weakened for every method:
 for windows with a major QTL,
 the power of the location-corrected GEA fell from 0.98 to 0.14
 as the QTL mutation rate increased.
+At the lowest rate, where all QTL arise in one 20~kb region,
+both the location-corrected GEA and LFMM2 with $K = 5$ found many windows without a QTL
+(false-discovery rates 0.71 and 0.53, respectively),
+likely because strong selection on a few sites
+gives linkage disequilibrium along the 1~Mb chromosome.
 When the environment was collinear with location (\Cref{tab:spatial}),
 the location-corrected GEA lost most of its signal at $\sigma_D = 0.1$
 (power 0.07, against 0.33 for LFMM2).
@@ -2606,31 +2617,35 @@ USDA Forest Service Award RDBIL-ERR16 to RCC.
   Continuous space: cross-fitted $R^2$, 100 replicates per row, 200,000 ticks;
   the architecture rows have $\sigma_D = 0.1$, $\sigma_K = 0.5$,
   the $\sigma_K$ rows $\sigma_D = 0.3$,
-  and the $\sigma_D$ rows $\sigma_K = 0.5$ (all with architecture 1 unless stated).}
+  and the $\sigma_D$ rows $\sigma_K = 0.5$ (all with architecture 1 unless stated).
+  Loc.\ share, share of the attribution of the environment
+  through the predicted location.}
   \label{tab:supptable2}
-  \begin{tabular}{@{}llccc@{}}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}llcccc@{}}
   \hline
-  \textbf{Simulation type} & \textbf{Parameter} & \textbf{Longitude $R^2$} & \textbf{Latitude $R^2$} & \textbf{Environment $R^2$} \\
+  \textbf{Simulation type} & \textbf{Parameter} & \textbf{Lon.\ $R^2$} & \textbf{Lat.\ $R^2$} & \textbf{Env.\ $R^2$} & \textbf{Loc.\ share} \\
   \hline
-  Wright--Fisher (discrete space) & -- & 0.986 & 0.985 & 0.916 \\
+  Wright--Fisher (discrete space) & -- & 0.986 & 0.985 & 0.916 & -- \\
   \hline
   \multirow{13}{*}{Non-Wright--Fisher (continuous space)}
-   & $g=1$ & 0.971 & 0.972 & 0.846 \\
-   & $g=2$ & 0.972 & 0.971 & 0.850 \\
-   & $g=3$ & 0.971 & 0.971 & 0.840 \\
-   \cline{2-5}
-   & $\sigma_K=0.3$ & 0.930 & 0.930 & 0.850 \\
-   & $\sigma_K=0.5$ & 0.920 & 0.919 & 0.716 \\
-   & $\sigma_K=0.7$ & 0.914 & 0.914 & 0.594 \\
-   \cline{2-5}
-   & $\sigma_D=0.1$ & 0.971 & 0.972 & 0.846 \\
-   & $\sigma_D=0.3$ & 0.920 & 0.919 & 0.716 \\
-   & $\sigma_D=0.5$ & 0.826 & 0.827 & 0.601 \\
-   \cline{2-5}
-   & $\sigma_D=0.1$, $\sigma_K=0.3$ & 0.973 & 0.973 & 0.903 \\
-   & $\sigma_D=0.1$, $\sigma_K=0.7$ & 0.970 & 0.970 & 0.778 \\
-   & $\sigma_D=0.5$, $\sigma_K=0.3$ & 0.848 & 0.847 & 0.750 \\
-   & $\sigma_D=0.5$, $\sigma_K=0.7$ & 0.813 & 0.815 & 0.446 \\
+   & $g=1$ & 0.971 & 0.972 & 0.846 & 0.17 \\
+   & $g=2$ & 0.972 & 0.971 & 0.850 & 0.18 \\
+   & $g=3$ & 0.971 & 0.971 & 0.840 & 0.18 \\
+   \cline{2-6}
+   & $\sigma_K=0.3$ & 0.930 & 0.930 & 0.850 & 0.23 \\
+   & $\sigma_K=0.5$ & 0.920 & 0.919 & 0.716 & 0.25 \\
+   & $\sigma_K=0.7$ & 0.914 & 0.914 & 0.594 & 0.28 \\
+   \cline{2-6}
+   & $\sigma_D=0.1$ & 0.971 & 0.972 & 0.846 & 0.17 \\
+   & $\sigma_D=0.3$ & 0.920 & 0.919 & 0.716 & 0.25 \\
+   & $\sigma_D=0.5$ & 0.826 & 0.827 & 0.601 & 0.32 \\
+   \cline{2-6}
+   & $\sigma_D=0.1$, $\sigma_K=0.3$ & 0.973 & 0.973 & 0.903 & 0.19 \\
+   & $\sigma_D=0.1$, $\sigma_K=0.7$ & 0.970 & 0.970 & 0.778 & 0.17 \\
+   & $\sigma_D=0.5$, $\sigma_K=0.3$ & 0.848 & 0.847 & 0.750 & 0.29 \\
+   & $\sigma_D=0.5$, $\sigma_K=0.7$ & 0.813 & 0.815 & 0.446 & 0.42 \\
   \hline
   \end{tabular}
 \end{table}
@@ -2815,6 +2830,9 @@ At $U = 2 \times 10^{-4}$, where one 20~kb window holds all QTL,
 the false-discovery rate of the corrected GEA is 0.71,
 and in an average replicate 49\% of its hits lie more than one window
 from any window with a QTL site.
+LFMM2 has the same problem
+(false-discovery rate 0.59 with $K = 1$ and 0.53 with $K = 5$;
+0.35 and 0.32 when windows next to a QTL window count as true).
 Above the transition, \ecolocator's attribution ranks the major QTL
 slightly higher than the GEAs.
 
